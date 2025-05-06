@@ -258,7 +258,7 @@ function aggiornaSezionePreferiti() {
         return `
           <div class="col-4 col-sm-6 col-lg-4 mb-4">
             <div class="portfolio-item">
-              <a class="portfolio-link" href="${tool.url}" target="_blank">
+              <a class="portfolio-link" href="${tool.url}" target="_blank" rel="noopener noreferrer">
                 <div class="portfolio-hover">
                   <div class="portfolio-hover-content">
                    <span class="hover-text">Vai</span>
@@ -359,7 +359,7 @@ fetch('tools.json')
       row.innerHTML = tools.map(tool => `
         <div class="col-4 col-sm-6 col-lg-4 mb-4">
           <div class="portfolio-item">
-            <a class="portfolio-link" href="${tool.url}" target="_blank">
+            <a class="portfolio-link" href="${tool.url}" target="_blank" rel="noopener noreferrer">
               <div class="portfolio-hover">
                 <div class="portfolio-hover-content">
                  <span class="hover-text">Vai</span>
@@ -516,36 +516,3 @@ fetch('tools.json')
   
   
  
- // collega i link dei tool
- // Per ogni tool cliccato
- document.querySelectorAll('.portfolio-link').forEach(link => {
-  link.addEventListener('click', e => {
-    e.preventDefault();
-
-    const promptInput = document.getElementById('globalTurboPromptInput');
-    const prompt = promptInput?.value.trim();
-    const url = link.getAttribute('data-url');
-
-    // Togli il focus dall'input
-    document.activeElement.blur();
-
-    if (prompt) {
-      navigator.clipboard.writeText(prompt)
-        .then(() => {
-          console.log('✅ Prompt copiato');
-
-          // ⏱ aspetta un attimo prima di aprire il link
-          setTimeout(() => {
-            if (url) window.open(url, '_blank');
-          }, 150);
-        })
-        .catch(err => {
-          console.warn('❌ Errore copia:', err);
-          // fallback: apri comunque
-          if (url) window.open(url, '_blank');
-        });
-    } else {
-      if (url) window.open(url, '_blank');
-    }
-  });
-});
