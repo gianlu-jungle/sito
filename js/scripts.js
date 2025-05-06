@@ -549,5 +549,3 @@ fetch('tools.json')
     }
   });
 });
-
-
