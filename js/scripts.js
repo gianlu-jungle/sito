@@ -515,9 +515,13 @@ fetch('tools.json')
   }
   
   
-  document.querySelectorAll('a[target="_blank"]').forEach(link => {
-    link.addEventListener('click', function (e) {
+  document.addEventListener('click', function (e) {
+    const link = e.target.closest('a');
+    if (!link) return;
+  
+    const isExternal = link.hostname !== location.hostname;
+    if (isExternal) {
       e.preventDefault();
-      window.open(link.href, '_blank', 'noopener,noreferrer');
-    });
+      window.open(link.href, '_blank');
+    }
   });
