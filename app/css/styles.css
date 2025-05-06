@@ -11619,3 +11619,10 @@ font-size: 0.9rem;
  
   transform: scale(1.2);
 }
+
+/* disabilita selezione e menu long-press su WebKit */
+html, body, .portfolio-item {
+  -webkit-touch-callout: none;  /* iOS Safari long-press menu */
+  -webkit-user-select: none;    /* disabilita selezione testo */
+  user-select: none;            /* disabilita selezione testo */
+}
