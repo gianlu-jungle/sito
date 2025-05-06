@@ -546,3 +546,49 @@ fetch('tools.json')
     });
   });
 
+// --- STORAGE e RESTORE per l'ordine delle sezioni ---
+function getSezioniOrdine() {
+  const o = localStorage.getItem('ordine-sezioni');
+  return o ? JSON.parse(o) : [];
+}
+function saveSezioniOrdine(order) {
+  localStorage.setItem('ordine-sezioni', JSON.stringify(order));
+}
+function restoreOrdineSezioni() {
+  const container = document.getElementById('tools-sections');
+  const ord = getSezioniOrdine();
+  if (!container || !ord.length) return;
+  ord.forEach(id => {
+    const sec = document.getElementById(id);
+    if (sec) container.appendChild(sec);
+  });
+}
+
+// --- ABILITA DRAG & DROP delle sezioni ---
+function abilitaDragOrdineSezioni() {
+  const container = document.getElementById('tools-sections');
+  if (!container) return;
+  new Sortable(container, {
+    animation: 150,
+    // se vuoi trascinare solo dalla testata:
+    handle: '.section-heading',
+    // escludi i pulsanti interni
+    filter: '.star-btn, .bolt-btn, .reset-order-btn',
+    preventOnFilter: false,
+    onEnd: () => {
+      // salva l'ordine corrente delle sezioni per id
+      const ids = Array.from(container.children)
+        .filter(el => el.tagName === 'SECTION')
+        .map(sec => sec.id);
+      saveSezioniOrdine(ids);
+    }
+  });
+}
+
+// --- INIZIALIZZA RESTORE + DRAG dopo il rendering ---
+document.addEventListener('DOMContentLoaded', () => {
+  // 1) ripristina ordine da localStorage
+  restoreOrdineSezioni();
+  // 2) abilita drag sul contenitore delle sezioni
+  abilitaDragOrdineSezioni();
+});
