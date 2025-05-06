@@ -359,9 +359,7 @@ fetch('tools.json')
   <button class="star-btn ${getPreferiti().includes(tool.id) ? 'active' : ''}" data-id="${tool.id}">
     <i class="fas fa-star"></i>
   </button>
-  <button class="bolt-btn ${getTurboList().includes(tool.id) ? 'active' : ''}" data-id="${tool.id}">
-    <i class="fas fa-bolt"></i>
-  </button>
+ 
 </div>
           </div>
         </div>
