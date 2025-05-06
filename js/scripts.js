@@ -513,14 +513,24 @@ fetch('tools.json')
   function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
-  
   document.addEventListener('click', function (e) {
-    const link = e.target.closest('a');
-    if (!link) return;
+    let link = e.target;
   
+    // Risale fino al <a> se hai cliccato su un figlio (es. un <span> dentro <a>)
+    while (link && link.tagName !== 'A') {
+      link = link.parentElement;
+    }
+  
+    // Nessun link trovato
+    if (!link || !link.href) return;
+  
+    // Ignora link con attributo 'data-internal' (opzionale)
+    if (link.hasAttribute('data-internal')) return;
+  
+    // Costruisce l'URL assoluto
     const url = new URL(link.href, location.origin);
   
-    // Se il link è esterno (diverso dominio), aprilo in finestra esterna
+    // Link esterno → apre in browser/app nativa
     if (url.hostname !== location.hostname) {
       e.preventDefault();
       window.open(link.href, '_blank');
