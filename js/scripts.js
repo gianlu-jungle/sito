@@ -6,15 +6,15 @@
 
 let allTools = [];
 
-fetch('tools.json')
-  .then(r => r.json())
-  .then(data => {
-    allTools = data;
-  });
 
 
 // Main scripts
 window.addEventListener('DOMContentLoaded', event => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('✅ Service Worker registrato'))
+      .catch(err => console.warn('❌ Errore SW:', err));
+  }
   // Navbar shrink function
   const navbarShrink = () => {
     const navbarCollapsible = document.body.querySelector('#mainNav');
@@ -124,45 +124,29 @@ function abilitaResetOrdine() {
 }
 
 // Enable drag & drop with saving
-const sortableMap = new Map(); // fuori dalla funzione, globale o in uno scope condiviso
-
 function abilitaDragSezioniConSalvataggio() {
   document.querySelectorAll('.portfolio-section .row').forEach(row => {
     const sec = row.closest('.portfolio-section');
     if (!sec) return;
     const cat = sec.id;
 
-    // Se già esiste un sortable su questo elemento, lo distrugge prima
-    if (sortableMap.has(row)) {
-      const existingSortable = sortableMap.get(row);
-      existingSortable.destroy();
-    }
-
-    const sortable = new Sortable(row, {
+    new Sortable(row, {
       animation: 150,
       ghostClass: 'sortable-ghost',
       dragClass: 'sortable-drag',
       chosenClass: 'sortable-chosen',
-      delay: 200,
-      delayOnTouchOnly: true,
-      touchStartThreshold: 10,
+      // Tutti gli elementi matching questo selettore NON avviano il drag
       filter: '.star-btn, .portfolio-hover-content',
       preventOnFilter: false,
       onEnd: () => {
         const ids = Array.from(row.children)
-          .map(el => {
-            const idEl = el.querySelector('.star-btn');
-            return idEl?.dataset.id || null;
-          })
+          .map(el => el.querySelector('.star-btn')?.dataset.id)
           .filter(id => id);
         if (ids.length) {
           localStorage.setItem(`ordine-${cat}`, JSON.stringify(ids));
         }
       }
     });
-
-    // Salva l'istanza per evitare duplicati
-    sortableMap.set(row, sortable);
   });
 }
 
@@ -368,7 +352,9 @@ fetch('tools.json')
   <button class="star-btn ${getPreferiti().includes(tool.id) ? 'active' : ''}" data-id="${tool.id}">
     <i class="fas fa-star"></i>
   </button>
- 
+  <button class="bolt-btn ${getTurboList().includes(tool.id) ? 'active' : ''}" data-id="${tool.id}">
+    <i class="fas fa-bolt"></i>
+  </button>
 </div>
           </div>
         </div>
@@ -380,7 +366,12 @@ fetch('tools.json')
           e.preventDefault(); togglePreferito(btn.getAttribute('data-id'));
         });
       });
-     
+      sezione.querySelectorAll('.bolt-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.preventDefault();
+          toggleTurbo(btn.getAttribute('data-id'));
+        });
+      });
 
     }
   
