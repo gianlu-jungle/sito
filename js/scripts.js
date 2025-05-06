@@ -137,7 +137,7 @@ function abilitaDragSezioniConSalvataggio() {
       chosenClass: 'sortable-chosen',
 
       // 👇 migliora l'esperienza su mobile
-      delay: 500,                // attesa prima che il drag inizi
+      delay: 200,                // attesa prima che il drag inizi
       delayOnTouchOnly: true,    // solo su touch
       touchStartThreshold: 10,   // quanto il dito può muoversi prima di attivare drag
 
