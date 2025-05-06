@@ -514,7 +514,12 @@ fetch('tools.json')
     return new Promise(resolve => setTimeout(resolve, ms));
   }
   
-  
+  document.querySelectorAll('a[target="_blank"]').forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      window.open(link.href, '_blank', 'noopener,noreferrer');
+    });
+  });
   document.addEventListener('click', function (e) {
     const link = e.target.closest('a');
     if (!link) return;
