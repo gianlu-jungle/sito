@@ -17,7 +17,7 @@ fetch('tools.json')
 window.addEventListener('DOMContentLoaded', event => {
   // Navbar shrink function
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
+    navigator.serviceWorker.register('/app/sw.js')
       .then(reg => console.log('✅ Service Worker registrato'))
       .catch(err => console.warn('❌ Errore SW:', err));
   }
