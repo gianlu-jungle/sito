@@ -12,7 +12,10 @@ fetch('tools.json')
     allTools = data;
   });
 
-
+   // Disable right-click context menu
+   document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+  });
 // Main scripts
 window.addEventListener('DOMContentLoaded', event => {
   // Navbar shrink function
@@ -543,7 +546,3 @@ fetch('tools.json')
     });
   });
 
-  // Disable right-click context menu
-  document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-  });
