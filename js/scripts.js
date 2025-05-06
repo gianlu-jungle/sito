@@ -513,26 +513,32 @@ fetch('tools.json')
   function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
-  document.addEventListener('click', function (e) {
-    let link = e.target;
-  
-    // Risale fino al <a> se hai cliccato su un figlio (es. un <span> dentro <a>)
-    while (link && link.tagName !== 'A') {
-      link = link.parentElement;
-    }
-  
-    // Nessun link trovato
-    if (!link || !link.href) return;
-  
-    // Ignora link con attributo 'data-internal' (opzionale)
-    if (link.hasAttribute('data-internal')) return;
-  
-    // Costruisce l'URL assoluto
-    const url = new URL(link.href, location.origin);
-  
-    // Link esterno → apre in browser/app nativa
-    if (url.hostname !== location.hostname) {
+
+  document.querySelectorAll('.portfolio-link').forEach(link => {
+    link.addEventListener('click', e => {
       e.preventDefault();
-      window.open(link.href, '_blank');
-    }
+  
+      const webUrl    = link.dataset.url;
+      const intentUri = link.dataset.intent;
+      const appUri    = link.dataset.app;
+  
+      // Priorità 1: intent_uri (Android)
+      // Priorità 2: app_uri (schema custom)
+      // Priorità 3: url web
+      const primary = intentUri || appUri;
+      const fallback = webUrl;
+  
+      if (primary) {
+        // Prova ad aprire l'app nativa/intento
+        window.location.href = primary;
+  
+        // Fallback sul web dopo 1.5s, se l'app non è installata
+        setTimeout(() => {
+          window.open(fallback, '_blank');
+        }, 1500);
+      } else {
+        // Solo web
+        window.open(webUrl, '_blank');
+      }
+    });
   });
