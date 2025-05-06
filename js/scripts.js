@@ -124,36 +124,45 @@ function abilitaResetOrdine() {
 }
 
 // Enable drag & drop with saving
+const sortableMap = new Map(); // fuori dalla funzione, globale o in uno scope condiviso
+
 function abilitaDragSezioniConSalvataggio() {
   document.querySelectorAll('.portfolio-section .row').forEach(row => {
     const sec = row.closest('.portfolio-section');
     if (!sec) return;
     const cat = sec.id;
 
-    new Sortable(row, {
+    // Se già esiste un sortable su questo elemento, lo distrugge prima
+    if (sortableMap.has(row)) {
+      const existingSortable = sortableMap.get(row);
+      existingSortable.destroy();
+    }
+
+    const sortable = new Sortable(row, {
       animation: 150,
       ghostClass: 'sortable-ghost',
       dragClass: 'sortable-drag',
       chosenClass: 'sortable-chosen',
-
-      // 👇 migliora l'esperienza su mobile
-      delay: 200,                // attesa prima che il drag inizi
-      delayOnTouchOnly: true,    // solo su touch
-      touchStartThreshold: 10,   // quanto il dito può muoversi prima di attivare drag
-
-      // 👇 esclude questi elementi dal drag
-      filter: '.star-btn, .portfolio-hover-content, .bolt-btn',
+      delay: 200,
+      delayOnTouchOnly: true,
+      touchStartThreshold: 10,
+      filter: '.star-btn, .portfolio-hover-content',
       preventOnFilter: false,
-
       onEnd: () => {
         const ids = Array.from(row.children)
-          .map(el => el.querySelector('.star-btn')?.dataset.id)
+          .map(el => {
+            const idEl = el.querySelector('.star-btn');
+            return idEl?.dataset.id || null;
+          })
           .filter(id => id);
         if (ids.length) {
           localStorage.setItem(`ordine-${cat}`, JSON.stringify(ids));
         }
       }
     });
+
+    // Salva l'istanza per evitare duplicati
+    sortableMap.set(row, sortable);
   });
 }
 
@@ -371,12 +380,7 @@ fetch('tools.json')
           e.preventDefault(); togglePreferito(btn.getAttribute('data-id'));
         });
       });
-      sezione.querySelectorAll('.bolt-btn').forEach(btn => {
-        btn.addEventListener('click', e => {
-          e.preventDefault();
-          toggleTurbo(btn.getAttribute('data-id'));
-        });
-      });
+     
 
     }
   
