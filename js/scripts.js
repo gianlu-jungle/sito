@@ -135,9 +135,16 @@ function abilitaDragSezioniConSalvataggio() {
       ghostClass: 'sortable-ghost',
       dragClass: 'sortable-drag',
       chosenClass: 'sortable-chosen',
-      // Tutti gli elementi matching questo selettore NON avviano il drag
+
+      // 👇 migliora l'esperienza su mobile
+      delay: 200,                // attesa prima che il drag inizi
+      delayOnTouchOnly: true,    // solo su touch
+      touchStartThreshold: 10,   // quanto il dito può muoversi prima di attivare drag
+
+      // 👇 esclude questi elementi dal drag
       filter: '.star-btn, .portfolio-hover-content, .bolt-btn',
       preventOnFilter: false,
+
       onEnd: () => {
         const ids = Array.from(row.children)
           .map(el => el.querySelector('.star-btn')?.dataset.id)
