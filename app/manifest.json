@@ -1,7 +1,9 @@
 {
     "name": "AI Tools Turbo",
     "short_name": "AITurbo",
-    "start_url": "./index.html",
+
+    "start_url": "/app/index.html",
+  "scope": "/app/",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#7f000000",
