@@ -515,4 +515,9 @@ fetch('tools.json')
   }
   
   
- 
+  document.querySelectorAll('a[target="_blank"]').forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      window.open(link.href, '_blank', 'noopener,noreferrer');
+    });
+  });
