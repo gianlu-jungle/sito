@@ -11626,3 +11626,27 @@ html, body, .portfolio-item {
   -webkit-user-select: none;    /* disabilita selezione testo */
   user-select: none;            /* disabilita selezione testo */
 }
+
+/* animazione pulse */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.1); }
+}
+
+/* stile del pulsante “load more” */
+.load-more-btn {
+  border: none;
+  background: #fff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s ease-in-out infinite;
+  cursor: pointer;
+}
+.load-more-btn:focus {
+  outline: none;
+}

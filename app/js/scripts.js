@@ -651,3 +651,29 @@ fetch('tools.json')
       });
   });
   
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.portfolio-section').forEach(section => {
+      const row = section.querySelector('.row');
+      const items = Array.from(row.children);
+      if (items.length <= 9) return;
+  
+      items.slice(9).forEach(el => el.style.display = 'none');
+  
+      const btn = document.createElement('button');
+      btn.className = 'load-more-btn';
+      // Usa l'icona Font Awesome qui:
+      btn.innerHTML = '<i class="fas fa-ellipsis-h"></i>';
+      let expanded = false;
+  
+      btn.addEventListener('click', () => {
+        expanded = !expanded;
+        items.slice(9).forEach(el => el.style.display = expanded ? '' : 'none');
+        btn.style.animation = expanded ? 'none' : '';
+      });
+  
+      const wrapper = document.createElement('div');
+      wrapper.className = 'text-center mt-3';
+      wrapper.appendChild(btn);
+      row.parentNode.insertBefore(wrapper, row.nextSibling);
+    });
+  });
