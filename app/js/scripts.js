@@ -299,12 +299,7 @@ function aggiornaSezionePreferiti() {
       abilitaResetOrdine();
 
       // Aggiungi il link in navbar se non c’è già
-      if (!navUl.querySelector('a[href="#preferiti-section"]')) {
-        const li = document.createElement('li');
-        li.className = 'nav-item';
-        li.innerHTML = `<a class="nav-link" href="#preferiti-section">Preferiti</a>`;
-        navUl.insertBefore(li, navUl.firstChild);
-      }
+
     });
 }
 
@@ -396,27 +391,7 @@ fetch('tools.json')
     abilitaResetOrdine();
   });
 
-// Build navigation links
-fetch('tools.json')
-  .then(r => r.json())
-  .then(data => {
-    const navUl = document.getElementById('navbarResponsive').querySelector('ul') || document.getElementById('nav-dynamic');
-    // Favorites link if any
-    if (getPreferiti().length) {
-      const li = document.createElement('li'); li.className='nav-item';
-      li.innerHTML = `<a class="nav-link" href="#preferiti-section">Preferiti</a>`;
-      navUl.insertBefore(li, navUl.firstChild);
-    }
-    // Unique categories
-    const cats = [...new Set(data.map(t => t.categoria))];
-    cats.forEach(cat => {
-      const id = normalizzaId(cat);
-      const li = document.createElement('li'); li.className='nav-item';
-      li.innerHTML = `<a class="nav-link" href="#${id}">${cat}</a>`;
-      navUl.appendChild(li);
-    });
-    abilitaDragSezioniConSalvataggio();
-  });
+
 
   document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('searchInput');
@@ -546,49 +521,130 @@ fetch('tools.json')
     });
   });
 
-// --- STORAGE e RESTORE per l'ordine delle sezioni ---
-function getSezioniOrdine() {
-  const o = localStorage.getItem('ordine-sezioni');
-  return o ? JSON.parse(o) : [];
-}
-function saveSezioniOrdine(order) {
-  localStorage.setItem('ordine-sezioni', JSON.stringify(order));
-}
-function restoreOrdineSezioni() {
-  const container = document.getElementById('tools-sections');
-  const ord = getSezioniOrdine();
-  if (!container || !ord.length) return;
-  ord.forEach(id => {
-    const sec = document.getElementById(id);
-    if (sec) container.appendChild(sec);
-  });
-}
-
-// --- ABILITA DRAG & DROP delle sezioni ---
-function abilitaDragOrdineSezioni() {
-  const container = document.getElementById('tools-sections');
-  if (!container) return;
-  new Sortable(container, {
-    animation: 150,
-    // se vuoi trascinare solo dalla testata:
-    handle: '.section-heading',
-    // escludi i pulsanti interni
-    filter: '.star-btn, .bolt-btn, .reset-order-btn',
-    preventOnFilter: false,
-    onEnd: () => {
-      // salva l'ordine corrente delle sezioni per id
-      const ids = Array.from(container.children)
-        .filter(el => el.tagName === 'SECTION')
-        .map(sec => sec.id);
-      saveSezioniOrdine(ids);
+  document.addEventListener('DOMContentLoaded', () => {
+    const menu = document.querySelector('#navbarResponsive ul') || document.getElementById('nav-dynamic');
+    const container = document.getElementById('tools-sections') || document.body;
+  
+    // STORAGE helper
+    const MENU_ORDER_KEY = 'menu-order';
+    function getMenuOrder() {
+      return JSON.parse(localStorage.getItem(MENU_ORDER_KEY) || 'null');
     }
+    function saveMenuOrder(order) {
+      localStorage.setItem(MENU_ORDER_KEY, JSON.stringify(order));
+    }
+  
+    fetch('tools.json')
+      .then(r => r.json())
+      .then(data => {
+        const cats = [...new Set(data.map(t => t.categoria))];
+  
+        // 1) Popola la voce Preferiti in menu se serve
+        if (getPreferiti().length && !menu.querySelector('li[data-section-id="preferiti-section"]')) {
+          const li = document.createElement('li');
+          li.className = 'nav-item no-drag';             // no-drag la esclude
+          li.dataset.sectionId = 'preferiti-section';
+          li.innerHTML = `<a class="nav-link" href="#preferiti-section">Preferiti</a>`;
+          menu.insertBefore(li, menu.firstChild);
+        }
+  
+        // 2) Popola le categorie in menu
+        cats.forEach(cat => {
+          const id = normalizzaId(cat);
+          if (!menu.querySelector(`li[data-section-id="${id}"]`)) {
+            const li = document.createElement('li');
+            li.className = 'nav-item';
+            li.dataset.sectionId = id;
+            li.innerHTML = `<a class="nav-link" href="#${id}">${cat}</a>`;
+            menu.appendChild(li);
+          }
+        });
+  
+        // 3) Popola le sezioni (inserisce <section id="...">)
+        cats.forEach(cat => {
+          const id = normalizzaId(cat);
+          if (!document.getElementById(id)) {
+            const sec = document.createElement('section');
+            sec.id = id;
+            sec.className = 'page-section portfolio-section';
+            sec.innerHTML = `
+              <div class="container">
+                <h2 class="section-heading text-uppercase">${cat}</h2>
+                <div class="row g-3"></div>
+              </div>`;
+            // riempie la row con i tool
+            const row = sec.querySelector('.row');
+            data.filter(t => t.categoria === cat).forEach(tool => {
+              const col = document.createElement('div');
+              col.className = 'col-4 col-sm-6 col-lg-4 mb-4';
+              col.innerHTML = `
+                <div class="portfolio-item">
+                  <a class="portfolio-link" href="${tool.url}" data-id="${normalizzaId(tool.nome)}">
+                    <img class="img-fluid" src="${tool.immagine}" alt="${tool.nome}">
+                  </a>
+                  <div class="portfolio-caption">
+                    <div class="portfolio-caption-heading">${tool.nome}</div>
+                  </div>
+                </div>`;
+              row.appendChild(col);
+            });
+            container.appendChild(sec);
+          }
+        });
+  
+        // 4) Ripristina ordine categorie da localStorage
+        const saved = getMenuOrder();
+        if (saved) {
+          saved.forEach(id => {
+            const li = menu.querySelector(`li[data-section-id="${id}"]`);
+            if (li) menu.appendChild(li);
+            const sec = document.getElementById(id);
+            if (sec) container.appendChild(sec);
+          });
+        }
+  
+        // 5) Abilita drag & drop SUL MENU (escludendo .no-drag)
+        new Sortable(menu, {
+          animation: 150,
+          ghostClass: 'sortable-ghost',
+          chosenClass: 'sortable-chosen',
+          handle: 'a.nav-link',
+          // solo i <li> senza classe .no-drag sono trascinabili
+          draggable: 'li:not(.no-drag)',
+          onEnd: () => {
+            // 1) prendi l'ordine attuale (include comunque preferiti all'inizio o dove si trova)
+            let ids = Array.from(menu.children)
+              .map(li => li.dataset.sectionId)
+              .filter(Boolean);
+        
+            // 2) togli la voce preferiti se presente in seconda+ posizione
+            ids = ids.filter(id => id !== 'preferiti-section');
+            // 3) reinseriscila sempre in testa
+            ids.unshift('preferiti-section');
+        
+            // 4) salva l'array così corretto
+            saveMenuOrder(ids);
+        
+            // 5) riordina il menu stesso: preferiti in testa → poi le altre
+            const favLi = menu.querySelector('li[data-section-id="preferiti-section"]');
+            if (favLi) menu.insertBefore(favLi, menu.firstChild);
+            ids.slice(1).forEach(id => {
+              const li = menu.querySelector(`li[data-section-id="${id}"]`);
+              if (li) menu.appendChild(li);
+            });
+        
+            // 6) infine, riordina anche le sezioni sul contenuto
+            const container = document.getElementById('tools-sections') || document.body;
+            ids.forEach(id => {
+              const sec = document.getElementById(id);
+              if (sec) container.appendChild(sec);
+            });
+          }
+        });
+  
+        // 6) Abilita drag interno AI TOOL, saltando Preferiti
+        abilitaDragSezioniConSalvataggio();
+        abilitaResetOrdine();
+      });
   });
-}
-
-// --- INIZIALIZZA RESTORE + DRAG dopo il rendering ---
-document.addEventListener('DOMContentLoaded', () => {
-  // 1) ripristina ordine da localStorage
-  restoreOrdineSezioni();
-  // 2) abilita drag sul contenitore delle sezioni
-  abilitaDragOrdineSezioni();
-});
+  
