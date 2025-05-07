@@ -609,6 +609,9 @@ fetch('tools.json')
           ghostClass: 'sortable-ghost',
           chosenClass: 'sortable-chosen',
           handle: 'a.nav-link',
+          delay: 200,
+      delayOnTouchOnly: true,
+      touchStartThreshold: 10,
           // solo i <li> senza classe .no-drag sono trascinabili
           draggable: 'li:not(.no-drag)',
           onEnd: () => {
