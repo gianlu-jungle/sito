@@ -259,7 +259,7 @@ function aggiornaSezionePreferiti() {
       row.innerHTML = toolsP.map(tool => {
         const id = normalizzaId(tool.nome);
         return `
-          <div class="col-4 col-sm-6 col-lg-4 mb-4">
+          <div class="col-4 col-sm-4 col-lg-4 mb-4">
             <div class="portfolio-item">
               <a class="portfolio-link" href="${tool.url}" target="_blank" rel="noopener noreferrer">
                 <div class="portfolio-hover">
@@ -322,7 +322,13 @@ fetch('tools.json')
     const container = document.getElementById('tools-sections') || document.body;
     const gruppi = {};
     data.forEach(tool => {
-      (gruppi[tool.categoria] = gruppi[tool.categoria] || []).push(tool);
+      if (Array.isArray(tool.categorie)) {
+        tool.categorie.forEach(cat => {
+          (gruppi[cat] = gruppi[cat] || []).push(tool);
+        });
+      } else if (tool.categoria) {
+        (gruppi[tool.categoria] = gruppi[tool.categoria] || []).push(tool);
+      }
     });
     for (const cat in gruppi) {
       const tools = gruppi[cat];
@@ -355,7 +361,7 @@ fetch('tools.json')
       row.dataset.originalOrder = JSON.stringify(tools.map(t => t.id));
       // Populate items
       row.innerHTML = tools.map(tool => `
-        <div class="col-4 col-sm-6 col-lg-4 mb-4">
+        <div class="col-4 col-sm-4 col-lg-4 mb-4">
           <div class="portfolio-item">
             <a class="portfolio-link" href="${tool.url}" target="_blank" rel="noopener noreferrer">
               <div class="portfolio-hover">
@@ -446,7 +452,7 @@ fetch('tools.json')
   
       // Clona i .col-… dei match (uno per id) e aggancia la stellina
       matches.forEach(item => {
-        const originalCol = item.closest('.col-4, .col-sm-6, .col-lg-4');
+        const originalCol = item.closest('.col-4, .col-sm-4, .col-lg-4'); 
         if (!originalCol) return;
   
         const clone = originalCol.cloneNode(true);
@@ -537,7 +543,7 @@ fetch('tools.json')
     fetch('tools.json')
       .then(r => r.json())
       .then(data => {
-        const cats = [...new Set(data.map(t => t.categoria))];
+        const cats = [...new Set(data.flatMap(t => t.categorie || [t.categoria]))];
   
         // 1) Popola la voce Preferiti in menu se serve
         if (getPreferiti().length && !menu.querySelector('li[data-section-id="preferiti-section"]')) {
@@ -574,9 +580,12 @@ fetch('tools.json')
               </div>`;
             // riempie la row con i tool
             const row = sec.querySelector('.row');
-            data.filter(t => t.categoria === cat).forEach(tool => {
+            data.filter(t =>
+              (Array.isArray(t.categorie) && t.categorie.includes(cat)) ||
+              t.categoria === cat
+            ).forEach(tool => {
               const col = document.createElement('div');
-              col.className = 'col-4 col-sm-6 col-lg-4 mb-4';
+              col.className = 'col-4 col-sm-4 col-lg-4 mb-4';
               col.innerHTML = `
                 <div class="portfolio-item">
                   <a class="portfolio-link" href="${tool.url}" data-id="${normalizzaId(tool.nome)}">
@@ -655,19 +664,19 @@ fetch('tools.json')
     document.querySelectorAll('.portfolio-section').forEach(section => {
       const row = section.querySelector('.row');
       const items = Array.from(row.children);
-      if (items.length <= 9) return;
+      if (items.length <= 6) return;
   
-      items.slice(9).forEach(el => el.style.display = 'none');
+      items.slice(6).forEach(el => el.style.display = 'none');
   
       const btn = document.createElement('button');
       btn.className = 'load-more-btn';
-      // Usa l'icona Font Awesome qui:
-      btn.innerHTML = '<i class="fas fa-ellipsis-h"></i>';
+      btn.innerHTML = '<i class="fas fa-chevron-down"></i>';  // freccia giù
       let expanded = false;
   
       btn.addEventListener('click', () => {
         expanded = !expanded;
-        items.slice(9).forEach(el => el.style.display = expanded ? '' : 'none');
+        items.slice(6).forEach(el => el.style.display = expanded ? '' : 'none');
+        btn.innerHTML = `<i class="fas fa-chevron-${expanded ? 'up' : 'down'}"></i>`;
         btn.style.animation = expanded ? 'none' : '';
       });
   
@@ -677,3 +686,4 @@ fetch('tools.json')
       row.parentNode.insertBefore(wrapper, row.nextSibling);
     });
   });
+  
