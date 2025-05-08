@@ -657,7 +657,7 @@ fetch('tools.json')
         // 6) Abilita drag interno AI TOOL, saltando Preferiti
         abilitaDragSezioniConSalvataggio();
         abilitaResetOrdine();
-
+        abilitaCollapseLoadMore();
       });
   });
   
