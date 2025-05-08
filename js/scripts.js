@@ -195,7 +195,6 @@ function aggiornaSezionePreferiti() {
 
     abilitaDragSezioniConSalvataggio();
     abilitaResetOrdine();
-    abilitaCollapseLoadMore();
     return;
   }
 
@@ -212,7 +211,6 @@ function aggiornaSezionePreferiti() {
 
         abilitaDragSezioniConSalvataggio();
         abilitaResetOrdine();
-        abilitaCollapseLoadMore();
         return;
       }
 
@@ -300,7 +298,6 @@ function aggiornaSezionePreferiti() {
       abilitaDragSezioniConSalvataggio();
       abilitaResetOrdine();
       abilitaCollapseLoadMore();
-
       // Aggiungi il link in navbar se non c’è già
 
     });
@@ -398,7 +395,6 @@ fetch('tools.json')
   
     abilitaDragSezioniConSalvataggio();
     abilitaResetOrdine();
-    abilitaCollapseLoadMore();
   });
 
 
@@ -661,37 +657,37 @@ fetch('tools.json')
         // 6) Abilita drag interno AI TOOL, saltando Preferiti
         abilitaDragSezioniConSalvataggio();
         abilitaResetOrdine();
-        abilitaCollapseLoadMore();
+
       });
   });
   
   function abilitaCollapseLoadMore() {
-    document.querySelectorAll('.portfolio-section').forEach(section => {
-      const row = section.querySelector('.row');
-      const items = Array.from(row.children);
-      if (items.length <= 6) return;
-  
-      items.slice(6).forEach(el => el.style.display = 'none');
-  
-      const btn = document.createElement('button');
-      btn.className = 'load-more-btn btn-oval';
-      btn.innerHTML = `
-        <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
-        <span class="arrow"><i class="fas fa-chevron-down"></i></span>
-      `;
-      let expanded = false;
-  
-      btn.addEventListener('click', () => {
-        expanded = !expanded;
-        items.slice(6).forEach(el => el.style.display = expanded ? '' : 'none');
-        btn.querySelector('.arrow').innerHTML = `<i class="fas fa-chevron-${expanded ? 'up' : 'down'}"></i>`;
-        btn.style.animation = expanded ? 'none' : '';
-      });
-  
-      const wrapper = document.createElement('div');
-      wrapper.className = 'text-center mt-3';
-      wrapper.appendChild(btn);
-      row.parentNode.insertBefore(wrapper, row.nextSibling);
+  document.querySelectorAll('.portfolio-section').forEach(section => {
+    const row = section.querySelector('.row');
+    const items = Array.from(row.children);
+    if (items.length <= 6) return;
+
+    items.slice(6).forEach(el => el.style.display = 'none');
+
+    const btn = document.createElement('button');
+    btn.className = 'load-more-btn btn-oval';
+    btn.innerHTML = `
+      <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
+      <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+    `;
+    let expanded = false;
+
+    btn.addEventListener('click', () => {
+      expanded = !expanded;
+      items.slice(6).forEach(el => el.style.display = expanded ? '' : 'none');
+      btn.querySelector('.arrow').innerHTML = `<i class="fas fa-chevron-${expanded ? 'up' : 'down'}"></i>`;
+      btn.style.animation = expanded ? 'none' : '';
     });
-  }
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'text-center mt-3';
+    wrapper.appendChild(btn);
+    row.parentNode.insertBefore(wrapper, row.nextSibling);
+  });
+}
   
