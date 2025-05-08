@@ -669,14 +669,17 @@ fetch('tools.json')
       items.slice(6).forEach(el => el.style.display = 'none');
   
       const btn = document.createElement('button');
-      btn.className = 'load-more-btn';
-      btn.innerHTML = '<i class="fas fa-chevron-down"></i>';  // freccia giù
+      btn.className = 'load-more-btn btn-oval';
+      btn.innerHTML = `
+        <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
+        <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+      `;
       let expanded = false;
   
       btn.addEventListener('click', () => {
         expanded = !expanded;
         items.slice(6).forEach(el => el.style.display = expanded ? '' : 'none');
-        btn.innerHTML = `<i class="fas fa-chevron-${expanded ? 'up' : 'down'}"></i>`;
+        btn.querySelector('.arrow').innerHTML = `<i class="fas fa-chevron-${expanded ? 'up' : 'down'}"></i>`;
         btn.style.animation = expanded ? 'none' : '';
       });
   
@@ -686,4 +689,5 @@ fetch('tools.json')
       row.parentNode.insertBefore(wrapper, row.nextSibling);
     });
   });
+  
   
