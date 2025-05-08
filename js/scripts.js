@@ -195,6 +195,7 @@ function aggiornaSezionePreferiti() {
 
     abilitaDragSezioniConSalvataggio();
     abilitaResetOrdine();
+    abilitaCollapseLoadMore();
     return;
   }
 
@@ -211,6 +212,7 @@ function aggiornaSezionePreferiti() {
 
         abilitaDragSezioniConSalvataggio();
         abilitaResetOrdine();
+        abilitaCollapseLoadMore();
         return;
       }
 
@@ -297,6 +299,7 @@ function aggiornaSezionePreferiti() {
       // Abilita sempre drag & drop e reset sull’ordine
       abilitaDragSezioniConSalvataggio();
       abilitaResetOrdine();
+      abilitaCollapseLoadMore();
 
       // Aggiungi il link in navbar se non c’è già
 
@@ -395,6 +398,7 @@ fetch('tools.json')
   
     abilitaDragSezioniConSalvataggio();
     abilitaResetOrdine();
+    abilitaCollapseLoadMore();
   });
 
 
@@ -657,10 +661,11 @@ fetch('tools.json')
         // 6) Abilita drag interno AI TOOL, saltando Preferiti
         abilitaDragSezioniConSalvataggio();
         abilitaResetOrdine();
+        abilitaCollapseLoadMore();
       });
   });
   
-  document.addEventListener('DOMContentLoaded', () => {
+  function abilitaCollapseLoadMore() {
     document.querySelectorAll('.portfolio-section').forEach(section => {
       const row = section.querySelector('.row');
       const items = Array.from(row.children);
@@ -688,6 +693,5 @@ fetch('tools.json')
       wrapper.appendChild(btn);
       row.parentNode.insertBefore(wrapper, row.nextSibling);
     });
-  });
-  
+  }
   
