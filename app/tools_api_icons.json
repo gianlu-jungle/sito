@@ -4,7 +4,7 @@
     "url": "https://chat.openai.com",
     "descrizione": "Chatbot AI per scrittura e conversazione",
     "immagine": "https://img.logo.dev/chat.openai.com?token=pk_L_yFOS-_SwS9CEjcWCFzGw&size=200&format=png",
-    "categoria": "Chat e Testo",
+    "categorie": ["Chat e Testo", "Immagini"],
     "url_prompt": "https://chat.openai.com/?q=Il+tuo+prompt"
   },
   {
