@@ -1,6 +1,6 @@
 {
-    "name": "AI Tools Turbo",
-    "short_name": "AITurbo",
+    "name": "aiJungle",
+    "short_name": "aiJungle",
 
    "start_url": "./index.html",
   "scope": "./",
