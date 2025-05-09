@@ -1,151 +1,380 @@
 /*
- * Start Bootstrap - Agency v7.0.12 (https://startbootstrap.com/theme/agency)
- * Copyright 2013-2023 Start Bootstrap
- * Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-agency/blob/master/LICENSE)
+ * Codice JavaScript ottimizzato per il sito di strumenti AI
  */
 
-let allTools = [];
+// Gestione preferiti
+const STORAGE_KEYS = {
+  FAVORITES: 'ai-tools-preferiti',
+  MENU_ORDER: 'menu-order'
+};
 
-fetch('tools.json')
-  .then(r => r.json())
-  .then(data => {
-    allTools = data;
-  });
-
-   // Disable right-click context menu
-   document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-  });
-// Main scripts
-window.addEventListener('DOMContentLoaded', event => {
-  // Navbar shrink function
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./js/sw.js')
-      .then(reg => console.log('✅ Service Worker registrato'))
-      .catch(err => console.warn('❌ Errore SW:', err));
-  }
-  const navbarShrink = () => {
-    const navbarCollapsible = document.body.querySelector('#mainNav');
-    if (!navbarCollapsible) return;
-    if (window.scrollY === 0) {
-      navbarCollapsible.classList.remove('navbar-shrink');
-    } else {
-      navbarCollapsible.classList.add('navbar-shrink');
-    }
-  };
-  // Shrink the navbar
-  navbarShrink();
-  document.addEventListener('scroll', navbarShrink);
-
-  // Activate Bootstrap scrollspy
-  const mainNav = document.body.querySelector('#mainNav');
-  if (mainNav) {
-    new bootstrap.ScrollSpy(document.body, {
-      target: '#mainNav',
-      rootMargin: '0px 0px -40%'
-    });
-  }
-
-  // Collapse responsive navbar when toggler is visible
-  const navbarToggler = document.body.querySelector('.navbar-toggler');
-  const responsiveNavItems = [].slice.call(
-    document.querySelectorAll('#navbarResponsive .nav-link')
-  );
-  responsiveNavItems.forEach(item => {
-    item.addEventListener('click', () => {
-      if (window.getComputedStyle(navbarToggler).display !== 'none') {
-        navbarToggler.click();
-      }
-    });
-  });
-});
-
-// Utility: normalize ID
-function normalizzaId(nome) {
-  return nome.toLowerCase()
+// Utility per ID normalizzati
+const normalizeId = (name) => {
+  return name.toLowerCase()
     .normalize('NFD').replace(/[̀-\u036f]/g, '')
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9\-]/g, '');
-}
+};
 
-// Favorites storage
-function getPreferiti() {
-  const p = localStorage.getItem('ai-tools-preferiti');
-  return p ? JSON.parse(p) : [];
-}
-function salvaPreferiti(pref) {
-  localStorage.setItem('ai-tools-preferiti', JSON.stringify(pref));
-}
-function togglePreferito(nomeTool) {
-  const id = normalizzaId(nomeTool);
-  const pref = getPreferiti();
-  const idx = pref.indexOf(id);
-  if (idx === -1) {
-    pref.push(id);
-    document.querySelectorAll(`.star-btn[data-id="${id}"]`).forEach(btn => {
-      btn.classList.add('active');
-      const ic = btn.querySelector('i');
-      if (ic) {
-        ic.classList.add('animate-star');
-        setTimeout(() => ic.classList.remove('animate-star'), 600);
-      }
-    });
-  } else {
-    pref.splice(idx, 1);
-    document.querySelectorAll(`.star-btn[data-id="${id}"]`).forEach(btn => {
-      btn.classList.remove('active');
+// Gestione Preferiti
+const favoritesManager = {
+  get() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.FAVORITES) || '[]');
+  },
+  
+  save(favorites) {
+    localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favorites));
+  },
+  
+  toggle(toolName) {
+    const id = normalizeId(toolName);
+    const favorites = this.get();
+    const index = favorites.indexOf(id);
+    
+    if (index === -1) {
+      favorites.push(id);
+      document.querySelectorAll(`.star-btn[data-id="${id}"]`).forEach(btn => {
+        btn.classList.add('active');
+        const icon = btn.querySelector('i');
+        if (icon) {
+          icon.classList.add('animate-star');
+          setTimeout(() => icon.classList.remove('animate-star'), 600);
+        }
+      });
+    } else {
+      favorites.splice(index, 1);
+      document.querySelectorAll(`.star-btn[data-id="${id}"]`).forEach(btn => {
+        btn.classList.remove('active');
+      });
+    }
+    
+    this.save(favorites);
+    updateFavoritesSection();
+  }
+};
+
+// Gestione ordine sezioni
+const sectionOrderManager = {
+  get(sectionId) {
+    return JSON.parse(localStorage.getItem(`ordine-${sectionId}`) || '[]');
+  },
+  
+  save(sectionId, order) {
+    localStorage.setItem(`ordine-${sectionId}`, JSON.stringify(order));
+  },
+  
+  reset(sectionId) {
+    localStorage.removeItem(`ordine-${sectionId}`);
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+    
+    const row = section.querySelector('.row');
+    if (!row || !row.dataset.originalOrder) return;
+    
+    const originalOrder = JSON.parse(row.dataset.originalOrder);
+    originalOrder.forEach(id => {
+      const col = Array.from(row.children).find(c => {
+        const btn = c.querySelector('.star-btn');
+        return btn && btn.dataset.id === id;
+      });
+      if (col) row.appendChild(col);
     });
   }
-  salvaPreferiti(pref);
-  aggiornaSezionePreferiti();
-}
+};
 
-// Reset single section order
-function resetOrdineSezione(idSezione) {
-  // Remove saved order
-  localStorage.removeItem(`ordine-${idSezione}`);
-  // Reorder DOM children based on original order stored
-  const sezione = document.getElementById(idSezione);
-  if (!sezione) return;
-  const row = sezione.querySelector('.row');
-  if (!row || !row.dataset.originalOrder) return;
-  const original = JSON.parse(row.dataset.originalOrder);
-  original.forEach(id => {
-    const col = Array.from(row.children).find(c => {
-      const btn = c.querySelector('.star-btn');
-      return btn && btn.dataset.id === id;
-    });
-    if (col) row.appendChild(col);
+// Gestione menu
+const menuManager = {
+  get() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.MENU_ORDER) || 'null');
+  },
+  
+  save(order) {
+    localStorage.setItem(STORAGE_KEYS.MENU_ORDER, JSON.stringify(order));
+  }
+};
+
+// Caricamento strumenti AI
+let allTools = [];
+fetch('tools.json')
+  .then(response => response.json())
+  .then(data => {
+    allTools = data;
+    buildToolSections(data);
+  })
+  .catch(error => console.error('Errore caricamento strumenti:', error));
+
+// Funzioni principale per la creazione delle sezioni strumenti
+function buildToolSections(tools) {
+  // Assicurati che ogni strumento abbia un ID
+  tools.forEach(tool => { 
+    tool.id = tool.id || normalizeId(tool.nome); 
   });
+  
+  const categories = {
+    "Chat e Testo": { 
+      id: "chat", 
+      title: "Chat e Testo", 
+      subtitle: "Strumenti AI per scrivere, conversare e creare contenuti testuali." 
+    },
+    "Immagini": { 
+      id: "immagini", 
+      title: "Immagini", 
+      subtitle: "Strumenti AI per la generazione e modifica di immagini." 
+    },
+    "Audio e Musica": { 
+      id: "audio", 
+      title: "Audio e Musica", 
+      subtitle: "Generazione vocale e composizione musicale con AI." 
+    },
+    "Video": { 
+      id: "video", 
+      title: "Video", 
+      subtitle: "Strumenti AI per video editing e creazione automatica." 
+    },
+    "Codice e Sviluppo": { 
+      id: "codice", 
+      title: "Codice e Sviluppo", 
+      subtitle: "AI per la programmazione e supporto agli sviluppatori." 
+    },
+    "Altri Strumenti": { 
+      id: "altri", 
+      title: "Altri Strumenti", 
+      subtitle: "Assistenti, ricerca, presentazioni, produttività." 
+    }
+  };
+  
+  const container = document.getElementById('tools-sections') || document.body;
+  const groups = {};
+  
+  // Raggruppa strumenti per categoria
+  tools.forEach(tool => {
+    if (Array.isArray(tool.categorie)) {
+      tool.categorie.forEach(cat => {
+        (groups[cat] = groups[cat] || []).push(tool);
+      });
+    } else if (tool.categoria) {
+      (groups[tool.categoria] = groups[tool.categoria] || []).push(tool);
+    }
+  });
+  
+  // Crea sezioni per ogni categoria
+  for (const category in groups) {
+    const categoryTools = groups[category];
+    const sectionId = normalizeId(category);
+    const section = document.createElement('section');
+    
+    section.classList.add('page-section', 'portfolio-section');
+    section.id = sectionId;
+    
+    const categoryInfo = categories[category] || { 
+      title: category, 
+      subtitle: '' 
+    };
+    
+    section.innerHTML = `
+      <div class="container">
+        <div class="text-center mb-3">
+          <h2 class="section-heading text-uppercase">${categoryInfo.title || category}</h2>
+          <h3 class="section-subheading text-muted">${categoryInfo.subtitle || ''}</h3>
+        </div>
+        <div class="row g-3"></div>
+        <div class="text-end mt-3">
+          <button class="btn btn-link reset-order-btn" data-sezione-id="${sectionId}">
+            <i class="fas fa-rotate-right"></i> Resetta ordine
+          </button>
+        </div>
+      </div>
+    `;
+    
+    const row = section.querySelector('.row');
+    
+    // Ordina strumenti secondo l'ordine salvato
+    const savedOrder = sectionOrderManager.get(sectionId);
+    if (savedOrder.length) {
+      categoryTools.sort((a, b) => 
+        savedOrder.indexOf(a.id) - savedOrder.indexOf(b.id)
+      );
+    }
+    
+    // Salva l'ordine originale per poterlo ripristinare
+    row.dataset.originalOrder = JSON.stringify(categoryTools.map(t => t.id));
+    
+    // Popola la riga con gli strumenti
+    row.innerHTML = categoryTools.map(tool => createToolCardHTML(tool)).join('');
+    
+    container.appendChild(section);
+    
+    // Aggiungi event listener per i pulsanti preferiti
+    section.querySelectorAll('.star-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        favoritesManager.toggle(btn.getAttribute('data-id'));
+      });
+    });
+  }
+  
+  // Inizializza funzionalità aggiuntive
+  enableDragSortForSections();
+  setupResetOrderButtons();
+  setupExpandCollapseSections();
+  setupNavigation(Object.keys(groups));
+  
+  // Inizializza la ricerca
+  setupSearch();
+  
+  // Aggiorna sezione preferiti
+  updateFavoritesSection();
 }
 
-// Attach reset buttons
-function abilitaResetOrdine() {
-  document.querySelectorAll('.reset-order-btn').forEach(btn => {
+// Crea HTML per la card di uno strumento
+function createToolCardHTML(tool) {
+  const id = tool.id || normalizeId(tool.nome);
+  const favorites = favoritesManager.get();
+  
+  return `
+    <div class="col-4 col-sm-4 col-lg-4 mb-4">
+      <div class="portfolio-item">
+        <a class="portfolio-link" href="${tool.url}" target="_blank" rel="noopener noreferrer">
+          <div class="portfolio-hover">
+            <div class="portfolio-hover-content">
+              <span class="hover-text">Vai</span>
+              <i class="fas fa-arrow-right fa-3x"></i>
+            </div>
+          </div>
+          <img class="img-fluid" src="${tool.immagine}" alt="${tool.nome}" />
+        </a>
+        <div class="portfolio-caption">
+          <div class="portfolio-caption-heading">${tool.nome}</div>
+          <div class="portfolio-caption-subheading text-muted">${tool.descrizione}</div>
+          <button class="star-btn ${favorites.includes(id) ? 'active' : ''}" data-id="${id}">
+            <i class="fas fa-star"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Aggiorna la sezione preferiti
+function updateFavoritesSection() {
+  const favorites = favoritesManager.get();
+  const favoritesSection = document.getElementById('preferiti-section');
+  const navMenu = document.querySelector('#navbarResponsive ul') || document.getElementById('nav-dynamic');
+  
+  // Rimuovi il link "Preferiti" dalla navbar se non ci sono preferiti
+  function removeNavLink() {
+    const link = navMenu?.querySelector('a[href="#preferiti-section"]');
+    if (link?.parentElement) {
+      navMenu.removeChild(link.parentElement);
+    }
+  }
+  
+  // Se non ci sono preferiti, nascondi la sezione
+  if (favorites.length === 0) {
+    if (favoritesSection) favoritesSection.style.display = 'none';
+    removeNavLink();
+    return;
+  }
+  
+  // Filtra gli strumenti preferiti
+  const favoriteTools = allTools.filter(tool => 
+    favorites.includes(normalizeId(tool.nome))
+  );
+  
+  // Se non ci sono strumenti preferiti, nascondi la sezione
+  if (!favoriteTools.length) {
+    if (favoritesSection) favoritesSection.style.display = 'none';
+    removeNavLink();
+    return;
+  }
+  
+  // Crea o aggiorna la sezione preferiti
+  let section = favoritesSection;
+  if (!section) {
+    section = document.createElement('section');
+    section.classList.add('page-section', 'portfolio-section');
+    section.id = 'preferiti-section';
+    
+    const container = document.getElementById('tools-sections') || document.body;
+    container.insertBefore(section, container.firstChild);
+  }
+  
+  section.style.display = 'block';
+  
+  // Struttura HTML della sezione
+  section.innerHTML = `
+    <div class="container">
+      <div class="text-center">
+        <h2 class="section-heading text-uppercase">I Tuoi Preferiti</h2>
+        <h3 class="section-subheading text-muted">
+          Strumenti AI che hai contrassegnato come preferiti
+        </h3>
+      </div>
+      <div class="row g-3"></div>
+      <div class="text-end mt-3">
+        <button class="btn btn-link reset-order-btn" data-sezione-id="preferiti-section">
+          <i class="fas fa-rotate-right"></i> Resetta ordine
+        </button>
+      </div>
+    </div>
+  `;
+  
+  const row = section.querySelector('.row');
+  const savedOrder = sectionOrderManager.get('preferiti-section');
+  
+  // Ordina in base all'ordine salvato
+  if (savedOrder.length) {
+    favoriteTools.sort((a, b) => 
+      savedOrder.indexOf(normalizeId(a.nome)) - savedOrder.indexOf(normalizeId(b.nome))
+    );
+  }
+  
+  // Salva l'ordine originale
+  row.dataset.originalOrder = JSON.stringify(favoriteTools.map(t => normalizeId(t.nome)));
+  
+  // Popola gli strumenti
+  row.innerHTML = favoriteTools.map(tool => createToolCardHTML(tool)).join('');
+  
+  // Aggiungi event listener per i pulsanti preferiti
+  section.querySelectorAll('.star-btn').forEach(btn => {
     btn.addEventListener('click', e => {
       e.preventDefault();
-      const idSez = btn.getAttribute('data-sezione-id');
-      if (idSez) resetOrdineSezione(idSez);
+      const id = btn.dataset.id;
+      const tool = favoriteTools.find(t => normalizeId(t.nome) === id);
+      if (tool) favoritesManager.toggle(tool.nome);
     });
   });
-
+  
+  // Aggiorna funzionalità di drag & drop
+  enableDragSortForSections();
+  setupResetOrderButtons();
+  setupExpandCollapseSections();
+  
+  // Aggiungi link nella navbar se non c'è già
+  if (navMenu && !navMenu.querySelector('a[href="#preferiti-section"]')) {
+    const li = document.createElement('li');
+    li.className = 'nav-item no-drag';
+    li.dataset.sectionId = 'preferiti-section';
+    li.innerHTML = `<a class="nav-link" href="#preferiti-section">Preferiti</a>`;
+    navMenu.insertBefore(li, navMenu.firstChild);
+  }
 }
 
-// Enable drag & drop with saving
-const sortableMap = new Map(); // fuori dalla funzione, globale o in uno scope condiviso
+// Abilita drag & drop per le sezioni
+const sortableMap = new Map();
 
-function abilitaDragSezioniConSalvataggio() {
+function enableDragSortForSections() {
   document.querySelectorAll('.portfolio-section .row').forEach(row => {
-    const sec = row.closest('.portfolio-section');
-    if (!sec) return;
-    const cat = sec.id;
-
-    // Se già esiste un sortable su questo elemento, lo distrugge prima
+    const section = row.closest('.portfolio-section');
+    if (!section) return;
+    const sectionId = section.id;
+    
+    // Distruggi l'istanza Sortable esistente se presente
     if (sortableMap.has(row)) {
-      const existingSortable = sortableMap.get(row);
-      existingSortable.destroy();
+      sortableMap.get(row).destroy();
     }
-
+    
+    // Crea nuova istanza Sortable
     const sortable = new Sortable(row, {
       animation: 150,
       ghostClass: 'sortable-ghost',
@@ -157,366 +386,301 @@ function abilitaDragSezioniConSalvataggio() {
       filter: '.star-btn, .portfolio-hover-content',
       preventOnFilter: false,
       onEnd: () => {
+        // Salva il nuovo ordine
         const ids = Array.from(row.children)
-          .map(el => {
-            const idEl = el.querySelector('.star-btn');
-            return idEl?.dataset.id || null;
-          })
-          .filter(id => id);
+          .map(el => el.querySelector('.star-btn')?.dataset.id)
+          .filter(Boolean);
+          
         if (ids.length) {
-          localStorage.setItem(`ordine-${cat}`, JSON.stringify(ids));
+          sectionOrderManager.save(sectionId, ids);
         }
       }
     });
-
-    // Salva l'istanza per evitare duplicati
+    
     sortableMap.set(row, sortable);
   });
 }
 
-// Update favorites section
-function aggiornaSezionePreferiti() {
-  const pref = getPreferiti();
-  const secPref = document.getElementById('preferiti-section');
-  const navUl = document.querySelector('#navbarResponsive ul') || document.getElementById('nav-dynamic');
-
-  // Rimuove il link “Preferiti” dalla navbar
-  function rimuoviLink() {
-    const link = navUl.querySelector('a[href="#preferiti-section"]');
-    if (link && link.parentElement) {
-      navUl.removeChild(link.parentElement);
-    }
-  }
-
-  // Se non ci sono preferiti, nascondi la sezione e abilita comunque drag & reset
-  if (pref.length === 0) {
-    if (secPref) secPref.style.display = 'none';
-    rimuoviLink();
-
-    abilitaDragSezioniConSalvataggio();
-    abilitaResetOrdine();
-    return;
-  }
-
-  // Se ci sono preferiti, ricava i dettagli e costruisci la sezione
-  fetch('tools.json')
-    .then(r => r.json())
-    .then(data => {
-      const toolsP = data.filter(t => pref.includes(normalizzaId(t.nome)));
-
-      // Se dopo il filtro non resta nulla, nascondi e abilita comunque drag & reset
-      if (!toolsP.length) {
-        if (secPref) secPref.style.display = 'none';
-        rimuoviLink();
-
-        abilitaDragSezioniConSalvataggio();
-        abilitaResetOrdine();
-        return;
-      }
-
-      // Crea o riutilizza la section “preferiti-section”
-      let section = secPref;
-      if (!section) {
-        section = document.createElement('section');
-        section.classList.add('page-section', 'portfolio-section');
-        section.id = 'preferiti-section';
-        const container = document.getElementById('tools-sections') || document.body;
-        container.insertBefore(section, container.firstChild);
-      }
-      section.style.display = 'block';
-
-      // HTML della sezione
-      section.innerHTML = `
-        <div class="container">
-          <div class="text-center">
-            <h2 class="section-heading text-uppercase">I Tuoi Preferiti</h2>
-            <h3 class="section-subheading text-muted">
-              Strumenti AI che hai contrassegnato come preferiti
-            </h3>
-          </div>
-          <div class="row g-3"></div>
-          <div class="text-end mt-3">
-            <button class="btn btn-link reset-order-btn" data-sezione-id="preferiti-section">
-              <i class="fas fa-rotate-right"></i> Resetta ordine
-            </button>
-          </div>
-        </div>
-      `;
-
-      const row = section.querySelector('.row');
-      const savedOrder = JSON.parse(localStorage.getItem('ordine-preferiti-section') || '[]');
-      if (savedOrder.length) {
-        toolsP.sort((a, b) =>
-          savedOrder.indexOf(normalizzaId(a.nome)) -
-          savedOrder.indexOf(normalizzaId(b.nome))
-        );
-      }
-
-      // Mantieni l’ordine originale per il reset
-      row.dataset.originalOrder = JSON.stringify(toolsP.map(t => normalizzaId(t.nome)));
-
-      // Popola i tool preferiti
-      row.innerHTML = toolsP.map(tool => {
-        const id = normalizzaId(tool.nome);
-        return `
-          <div class="col-4 col-sm-4 col-lg-4 mb-4">
-            <div class="portfolio-item">
-              <a class="portfolio-link" href="${tool.url}" target="_blank" rel="noopener noreferrer">
-                <div class="portfolio-hover">
-                  <div class="portfolio-hover-content">
-                   <span class="hover-text">Vai</span>
-                    <i class="fas fa-arrow-right fa-3x"></i>
-                  </div>
-                </div>
-                <img class="img-fluid" src="${tool.immagine}" alt="${tool.nome}" />
-              </a>
-              <div class="portfolio-caption">
-                <div class="portfolio-caption-heading">${tool.nome}</div>
-                <div class="portfolio-caption-subheading text-muted">
-                  ${tool.descrizione}
-                </div>
-                <button class="star-btn active" data-id="${id}">
-                  <i class="fas fa-star"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      // Listener per togliere/aggiungere preferiti
-      section.querySelectorAll('.star-btn').forEach(btn => {
-        btn.addEventListener('click', e => {
-          e.preventDefault();
-          const id = btn.dataset.id;
-          const nome = toolsP.find(t => normalizzaId(t.nome) === id)?.nome;
-          if (nome) togglePreferito(nome);
-        });
-      });
-
-      // Abilita sempre drag & drop e reset sull’ordine
-      abilitaDragSezioniConSalvataggio();
-      abilitaResetOrdine();
-      abilitaCollapseLoadMore();
-      // Aggiungi il link in navbar se non c’è già
-
+// Configura i pulsanti di reset ordine
+function setupResetOrderButtons() {
+  document.querySelectorAll('.reset-order-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      const sectionId = btn.getAttribute('data-sezione-id');
+      if (sectionId) sectionOrderManager.reset(sectionId);
     });
+  });
 }
 
-document.addEventListener('DOMContentLoaded', aggiornaSezionePreferiti);
-
-// Build all tool sections
-fetch('tools.json')
-  .then(r => r.json())
-  .then(data => {
-    // Ensure IDs
-    data.forEach(tool => { tool.id = tool.id || normalizzaId(tool.nome); });
-    const categorieTitoli = {
-      "Chat e Testo": { id: "chat", titolo: "Chat e Testo", sottotitolo: "Strumenti AI per scrivere, conversare e creare contenuti testuali." },
-      "Immagini":   { id: "immagini", titolo: "Immagini", sottotitolo: "Strumenti AI per la generazione e modifica di immagini." },
-      "Audio e Musica": { id: "audio", titolo: "Audio e Musica", sottotitolo: "Generazione vocale e composizione musicale con AI." },
-      "Video": { id: "video", titolo: "Video", sottotitolo: "Strumenti AI per video editing e creazione automatica." },
-      "Codice e Sviluppo": { id: "codice", titolo: "Codice e Sviluppo", sottotitolo: "AI per la programmazione e supporto agli sviluppatori." },
-      "Altri Strumenti": { id: "altri", titolo: "Altri Strumenti", sottotitolo: "Assistenti, ricerca, presentazioni, produttività." }
-    };
-    const container = document.getElementById('tools-sections') || document.body;
-    const gruppi = {};
-    data.forEach(tool => {
-      if (Array.isArray(tool.categorie)) {
-        tool.categorie.forEach(cat => {
-          (gruppi[cat] = gruppi[cat] || []).push(tool);
-        });
-      } else if (tool.categoria) {
-        (gruppi[tool.categoria] = gruppi[tool.categoria] || []).push(tool);
-      }
-    });
-    for (const cat in gruppi) {
-      const tools = gruppi[cat];
-      const sezione = document.createElement('section');
-      const promptInputId = `prompt-${normalizzaId(cat)}`;
-      sezione.classList.add('page-section', 'portfolio-section');
-      sezione.id = normalizzaId(cat);
-      sezione.innerHTML = `
-      <div class="container">
-        <div class="text-center mb-3">
-          <h2 class="section-heading text-uppercase">${categorieTitoli[cat]?.titolo || cat}</h2>
-          <h3 class="section-subheading text-muted">${categorieTitoli[cat]?.sottotitolo || ''}</h3>
-        </div>
+// Configura espansione/compressione sezioni
+function setupExpandCollapseSections() {
+  document.querySelectorAll('.portfolio-section').forEach(section => {
+    const row = section.querySelector('.row');
+    const items = Array.from(row.children);
     
-        <div class="row g-3"></div>
-        <div class="text-end mt-3">
-          <button class="btn btn-link reset-order-btn" data-sezione-id="${sezione.id}">
-            <i class="fas fa-rotate-right"></i> Resetta ordine
-          </button>
+    
+     // NON aggiungere sezione se già c'è il pulsante
+     if (section.querySelector('.load-more-btn') || items.length <= 6) return;
+
+
+    // Applica solo se ci sono più di 6 elementi
+    if (items.length <= 6) return;
+    
+    // Nascondi gli elementi oltre il 6°
+    items.slice(6).forEach(el => el.style.display = 'none');
+    
+    // Crea il pulsante "Mostra altro"
+    const btn = document.createElement('button');
+    btn.className = 'load-more-btn btn-oval';
+    btn.innerHTML = `
+      <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
+      <span class="arrow"><i class="fas fa-chevron-down"></i></span>
+    `;
+    
+    let expanded = false;
+    
+    // Evento click sul pulsante
+    btn.addEventListener('click', () => {
+      expanded = !expanded;
+      items.slice(6).forEach(el => el.style.display = expanded ? '' : 'none');
+      btn.querySelector('.arrow').innerHTML = `<i class="fas fa-chevron-${expanded ? 'up' : 'down'}"></i>`;
+      btn.style.animation = expanded ? 'none' : '';
+    });
+    
+    // Aggiungi il pulsante alla fine della sezione
+    const wrapper = document.createElement('div');
+    wrapper.className = 'text-center mt-3';
+    wrapper.appendChild(btn);
+    row.parentNode.insertBefore(wrapper, row.nextSibling);
+  });
+}
+
+// Configura la navigazione
+function setupNavigation(categories) {
+  const menu = document.querySelector('#navbarResponsive ul') || document.getElementById('nav-dynamic');
+  if (!menu) return;
+  
+  // Aggiungi voci di menu per ogni categoria
+  categories.forEach(category => {
+    const id = normalizeId(category);
+    if (!menu.querySelector(`li[data-section-id="${id}"]`)) {
+      const li = document.createElement('li');
+      li.className = 'nav-item';
+      li.dataset.sectionId = id;
+      li.innerHTML = `<a class="nav-link" href="#${id}">${category}</a>`;
+      menu.appendChild(li);
+    }
+  });
+  
+  // Ripristina ordine menu da localStorage
+  const savedOrder = menuManager.get();
+  if (savedOrder) {
+    savedOrder.forEach(id => {
+      const li = menu.querySelector(`li[data-section-id="${id}"]`);
+      if (li) menu.appendChild(li);
+    });
+  }
+  
+  // Abilita drag & drop sul menu
+  new Sortable(menu, {
+    animation: 150,
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+    handle: 'a.nav-link',
+    delay: 200,
+    delayOnTouchOnly: true,
+    touchStartThreshold: 10,
+    draggable: 'li:not(.no-drag)',
+    onEnd: () => {
+      // Salva nuovo ordine menu
+      let ids = Array.from(menu.children)
+        .map(li => li.dataset.sectionId)
+        .filter(Boolean);
+      
+      // Gestione speciale per la sezione preferiti
+      if (ids.includes('preferiti-section')) {
+        // Rimuovi preferiti dall'ordine
+        ids = ids.filter(id => id !== 'preferiti-section');
+        // Reinseriscilo in testa
+        ids.unshift('preferiti-section');
+      }
+      
+      menuManager.save(ids);
+      
+      // Riordina il menu
+      const favLi = menu.querySelector('li[data-section-id="preferiti-section"]');
+      if (favLi) menu.insertBefore(favLi, menu.firstChild);
+      
+      ids.slice(1).forEach(id => {
+        const li = menu.querySelector(`li[data-section-id="${id}"]`);
+        if (li) menu.appendChild(li);
+      });
+      
+      // Riordina le sezioni nel contenuto
+      const container = document.getElementById('tools-sections') || document.body;
+      ids.forEach(id => {
+        const section = document.getElementById(id);
+        if (section) container.appendChild(section);
+      });
+    }
+  });
+}
+
+// Configura la ricerca
+function setupSearch() {
+  const searchInput = document.getElementById('searchInput');
+  if (!searchInput) return;
+  
+  const container = document.getElementById('tools-sections') || document.body;
+  let filteredSection = null;
+  
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.toLowerCase().trim();
+    
+    // Rimuovi sezione risultati precedente
+    if (filteredSection) {
+      filteredSection.remove();
+      filteredSection = null;
+    }
+    
+    if (!query) return;
+    
+    // Trova tutti i portfolio-item che corrispondono alla ricerca
+    const allMatches = Array.from(document.querySelectorAll('.portfolio-item')).filter(item => {
+      const name = item.querySelector('.portfolio-caption-heading')?.textContent.toLowerCase() || '';
+      const desc = item.querySelector('.portfolio-caption-subheading')?.textContent.toLowerCase() || '';
+      return name.includes(query) || desc.includes(query);
+    });
+    
+    // Deduplicazione per data-id
+    const seen = new Set();
+    const matches = allMatches.filter(item => {
+      const id = item.querySelector('.star-btn')?.dataset.id;
+      if (!id || seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+    
+    if (!matches.length) return;
+    
+    // Crea sezione risultati ricerca
+    filteredSection = document.createElement('section');
+    filteredSection.classList.add('page-section', 'portfolio-section');
+    filteredSection.id = 'filtered-section';
+    
+    filteredSection.innerHTML = `
+      <div class="container">
+        <div class="text-center">
+          <h2 class="section-heading text-uppercase">Risultati ricerca</h2>
+          <h3 class="section-subheading text-muted">Trovati ${matches.length} elementi</h3>
         </div>
+        <div class="row g-3"></div>
       </div>
     `;
-      const row = sezione.querySelector('.row');
-      // Sort by saved order
-      const ordSaved = JSON.parse(localStorage.getItem(`ordine-${sezione.id}`) || '[]');
-      if (ordSaved.length) {
-        tools.sort((a,b) => ordSaved.indexOf(a.id) - ordSaved.indexOf(b.id));
-      }
-      // Store original
-      row.dataset.originalOrder = JSON.stringify(tools.map(t => t.id));
-      // Populate items
-      row.innerHTML = tools.map(tool => `
-        <div class="col-4 col-sm-4 col-lg-4 mb-4">
-          <div class="portfolio-item">
-            <a class="portfolio-link" href="${tool.url}" target="_blank" rel="noopener noreferrer">
-              <div class="portfolio-hover">
-                <div class="portfolio-hover-content">
-                 <span class="hover-text">Vai</span>
-                <i class="fas fa-arrow-right fa-3x"></i></div>
-              </div>
-              <img class="img-fluid" src="${tool.immagine}" alt="${tool.nome}" />
-            </a>
-           <div class="portfolio-caption">
-  <div class="portfolio-caption-heading">${tool.nome}</div>
-  <div class="portfolio-caption-subheading text-muted">${tool.descrizione}</div>
-  <button class="star-btn ${getPreferiti().includes(tool.id) ? 'active' : ''}" data-id="${tool.id}">
-    <i class="fas fa-star"></i>
-  </button>
- 
-</div>
-          </div>
-        </div>
-      `).join('');
-      container.appendChild(sezione);
-      // Listeners
-      sezione.querySelectorAll('.star-btn').forEach(btn => {
-        btn.addEventListener('click', e => {
-          e.preventDefault(); togglePreferito(btn.getAttribute('data-id'));
-        });
-      });
-     
-
-    }
-  
-    abilitaDragSezioniConSalvataggio();
-    abilitaResetOrdine();
-  });
-
-
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const input = document.getElementById('searchInput');
-    if (!input) return;
-  
-    const container = document.getElementById('tools-sections') || document.body;
-    let filteredSection = null;
-  
-    input.addEventListener('input', () => {
-      const q = input.value.toLowerCase().trim();
-  
-      // Rimuovi la vecchia sezione, se esiste
-      if (filteredSection) {
-        filteredSection.remove();
-        filteredSection = null;
-      }
-  
-      if (!q) return; // query vuota: niente da fare
-  
-      // Trova TUTTI i .portfolio-item che matchano
-      const allMatches = Array.from(document.querySelectorAll('.portfolio-item')).filter(item => {
-        const nome = item.querySelector('.portfolio-caption-heading')?.textContent.toLowerCase() || '';
-        const desc = item.querySelector('.portfolio-caption-subheading')?.textContent.toLowerCase() || '';
-        return nome.includes(q) || desc.includes(q);
-      });
-  
-      // Deduplica per data-id
-      const seen = new Set();
-      const matches = allMatches.filter(item => {
-        const id = item.querySelector('.star-btn')?.dataset.id;
-        if (!id || seen.has(id)) return false;
-        seen.add(id);
-        return true;
-      });
-  
-      if (!matches.length) return;
-  
-      // Crea la sezione “Risultati ricerca”
-      filteredSection = document.createElement('section');
-      filteredSection.classList.add('page-section','portfolio-section');
-      filteredSection.id = 'filtered-section';
-      filteredSection.innerHTML = `
-        <div class="container">
-          <div class="text-center">
-            <h2 class="section-heading text-uppercase">Risultati ricerca</h2>
-            <h3 class="section-subheading text-muted">Trovati ${matches.length} elementi</h3>
-          </div>
-          <div class="row g-3"></div>
-        </div>
-      `;
-      const row = filteredSection.querySelector('.row');
-  
-      // Clona i .col-… dei match (uno per id) e aggancia la stellina
-      matches.forEach(item => {
-        const originalCol = item.closest('.col-4, .col-sm-4, .col-lg-4'); 
-        if (!originalCol) return;
-  
-        const clone = originalCol.cloneNode(true);
-        const star = clone.querySelector('.star-btn');
-        if (star) {
-          const id = star.dataset.id;
-          // Stato star
-          if (getPreferiti().includes(id)) star.classList.add('active');
-          else star.classList.remove('active');
-          // Listener
-          star.addEventListener('click', e => {
-            e.preventDefault();
-            const nome = clone.querySelector('.portfolio-caption-heading')?.textContent;
-            if (nome) togglePreferito(nome);
-          });
+    
+    const row = filteredSection.querySelector('.row');
+    
+    // Clona i risultati e aggiungi event listener
+    matches.forEach(item => {
+      const originalCol = item.closest('.col-4, .col-sm-4, .col-lg-4');
+      if (!originalCol) return;
+      
+      const clone = originalCol.cloneNode(true);
+      const star = clone.querySelector('.star-btn');
+      
+      if (star) {
+        const id = star.dataset.id;
+        // Aggiorna stato stella
+        if (favoritesManager.get().includes(id)) {
+          star.classList.add('active');
+        } else {
+          star.classList.remove('active');
         }
-        row.appendChild(clone);
-      });
+        
+        // Aggiungi event listener
+        star.addEventListener('click', e => {
+          e.preventDefault();
+          const name = clone.querySelector('.portfolio-caption-heading')?.textContent;
+          if (name) favoritesManager.toggle(name);
+        });
+      }
+      
+      row.appendChild(clone);
+    });
+    
+    // Inserisci sezione risultati in cima
+    container.parentNode.insertBefore(filteredSection, container);
+  });
+}
+
+// Configura navbar responsive
+document.addEventListener('DOMContentLoaded', () => {
+  // Navbar shrink function
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./js/sw.js')
+      .then(reg => console.log('✅ Service Worker registrato'))
+      .catch(err => console.warn('❌ Errore SW:', err));
+  }
   
-      // Inserisci la sezione filtrata in cima
-      container.parentNode.insertBefore(filteredSection, container);
+  const navbarShrink = () => {
+    const navbarCollapsible = document.body.querySelector('#mainNav');
+    if (!navbarCollapsible) return;
+    
+    if (window.scrollY === 0) {
+      navbarCollapsible.classList.remove('navbar-shrink');
+    } else {
+      navbarCollapsible.classList.add('navbar-shrink');
+    }
+  };
+  
+  // Shrink navbar iniziale
+  navbarShrink();
+  document.addEventListener('scroll', navbarShrink);
+  
+  // Attiva Bootstrap scrollspy
+  const mainNav = document.body.querySelector('#mainNav');
+  if (mainNav) {
+    new bootstrap.ScrollSpy(document.body, {
+      target: '#mainNav',
+      rootMargin: '0px 0px -40%'
+    });
+  }
+  
+  // Collassa navbar responsive quando si clicca
+  const navbarToggler = document.body.querySelector('.navbar-toggler');
+  const responsiveNavItems = [].slice.call(
+    document.querySelectorAll('#navbarResponsive .nav-link')
+  );
+  
+  responsiveNavItems.forEach(item => {
+    item.addEventListener('click', () => {
+      if (window.getComputedStyle(navbarToggler).display !== 'none') {
+        navbarToggler.click();
+      }
     });
   });
   
-  function getTurboList() {
-    const t = localStorage.getItem('ai-tools-turbo');
-    return t ? JSON.parse(t) : [];
-  }
-  function saveTurboList(list) {
-    localStorage.setItem('ai-tools-turbo', JSON.stringify(list));
-  }
-  function toggleTurbo(id) {
-    const list = getTurboList();
-    const idx = list.indexOf(id);
-    if (idx === -1) list.push(id);
-    else list.splice(idx, 1);
-    saveTurboList(list);
-    document.querySelectorAll(`.bolt-btn[data-id="${id}"]`)
-      .forEach(btn => btn.classList.toggle('active'));
-  }
-
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
+  // Disabilita menù contestuale
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  
+  // Gestione link portfolio
   document.querySelectorAll('.portfolio-link').forEach(link => {
     link.addEventListener('click', e => {
       e.preventDefault();
-  
-      const webUrl    = link.dataset.url;
+      
+      const webUrl = link.dataset.url || link.href;
       const intentUri = link.dataset.intent;
-      const appUri    = link.dataset.app;
-  
-      // Priorità 1: intent_uri (Android)
-      // Priorità 2: app_uri (schema custom)
-      // Priorità 3: url web
+      const appUri = link.dataset.app;
+      
+      // Priorità: 1) intent_uri (Android), 2) app_uri (schema custom), 3) url web
       const primary = intentUri || appUri;
       const fallback = webUrl;
-  
+      
       if (primary) {
-        // Prova ad aprire l'app nativa/intento
+        // Prova ad aprire l'app nativa
         window.location.href = primary;
-  
-        // Fallback sul web dopo 1.5s, se l'app non è installata
+        
+        // Fallback sul web dopo 1.5s
         setTimeout(() => {
           window.open(fallback, '_blank');
         }, 1500);
@@ -526,168 +690,4 @@ fetch('tools.json')
       }
     });
   });
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const menu = document.querySelector('#navbarResponsive ul') || document.getElementById('nav-dynamic');
-    const container = document.getElementById('tools-sections') || document.body;
-  
-    // STORAGE helper
-    const MENU_ORDER_KEY = 'menu-order';
-    function getMenuOrder() {
-      return JSON.parse(localStorage.getItem(MENU_ORDER_KEY) || 'null');
-    }
-    function saveMenuOrder(order) {
-      localStorage.setItem(MENU_ORDER_KEY, JSON.stringify(order));
-    }
-  
-    fetch('tools.json')
-      .then(r => r.json())
-      .then(data => {
-        const cats = [...new Set(data.flatMap(t => t.categorie || [t.categoria]))];
-  
-        // 1) Popola la voce Preferiti in menu se serve
-        if (getPreferiti().length && !menu.querySelector('li[data-section-id="preferiti-section"]')) {
-          const li = document.createElement('li');
-          li.className = 'nav-item no-drag';             // no-drag la esclude
-          li.dataset.sectionId = 'preferiti-section';
-          li.innerHTML = `<a class="nav-link" href="#preferiti-section">Preferiti</a>`;
-          menu.insertBefore(li, menu.firstChild);
-        }
-  
-        // 2) Popola le categorie in menu
-        cats.forEach(cat => {
-          const id = normalizzaId(cat);
-          if (!menu.querySelector(`li[data-section-id="${id}"]`)) {
-            const li = document.createElement('li');
-            li.className = 'nav-item';
-            li.dataset.sectionId = id;
-            li.innerHTML = `<a class="nav-link" href="#${id}">${cat}</a>`;
-            menu.appendChild(li);
-          }
-        });
-  
-        // 3) Popola le sezioni (inserisce <section id="...">)
-        cats.forEach(cat => {
-          const id = normalizzaId(cat);
-          if (!document.getElementById(id)) {
-            const sec = document.createElement('section');
-            sec.id = id;
-            sec.className = 'page-section portfolio-section';
-            sec.innerHTML = `
-              <div class="container">
-                <h2 class="section-heading text-uppercase">${cat}</h2>
-                <div class="row g-3"></div>
-              </div>`;
-            // riempie la row con i tool
-            const row = sec.querySelector('.row');
-            data.filter(t =>
-              (Array.isArray(t.categorie) && t.categorie.includes(cat)) ||
-              t.categoria === cat
-            ).forEach(tool => {
-              const col = document.createElement('div');
-              col.className = 'col-4 col-sm-4 col-lg-4 mb-4';
-              col.innerHTML = `
-                <div class="portfolio-item">
-                  <a class="portfolio-link" href="${tool.url}" data-id="${normalizzaId(tool.nome)}">
-                    <img class="img-fluid" src="${tool.immagine}" alt="${tool.nome}">
-                  </a>
-                  <div class="portfolio-caption">
-                    <div class="portfolio-caption-heading">${tool.nome}</div>
-                  </div>
-                </div>`;
-              row.appendChild(col);
-            });
-            container.appendChild(sec);
-          }
-        });
-  
-        // 4) Ripristina ordine categorie da localStorage
-        const saved = getMenuOrder();
-        if (saved) {
-          saved.forEach(id => {
-            const li = menu.querySelector(`li[data-section-id="${id}"]`);
-            if (li) menu.appendChild(li);
-            const sec = document.getElementById(id);
-            if (sec) container.appendChild(sec);
-          });
-        }
-  
-        // 5) Abilita drag & drop SUL MENU (escludendo .no-drag)
-        new Sortable(menu, {
-          animation: 150,
-          ghostClass: 'sortable-ghost',
-          chosenClass: 'sortable-chosen',
-          handle: 'a.nav-link',
-          delay: 200,
-      delayOnTouchOnly: true,
-      touchStartThreshold: 10,
-          // solo i <li> senza classe .no-drag sono trascinabili
-          draggable: 'li:not(.no-drag)',
-          onEnd: () => {
-            // 1) prendi l'ordine attuale (include comunque preferiti all'inizio o dove si trova)
-            let ids = Array.from(menu.children)
-              .map(li => li.dataset.sectionId)
-              .filter(Boolean);
-        
-            // 2) togli la voce preferiti se presente in seconda+ posizione
-            ids = ids.filter(id => id !== 'preferiti-section');
-            // 3) reinseriscila sempre in testa
-            ids.unshift('preferiti-section');
-        
-            // 4) salva l'array così corretto
-            saveMenuOrder(ids);
-        
-            // 5) riordina il menu stesso: preferiti in testa → poi le altre
-            const favLi = menu.querySelector('li[data-section-id="preferiti-section"]');
-            if (favLi) menu.insertBefore(favLi, menu.firstChild);
-            ids.slice(1).forEach(id => {
-              const li = menu.querySelector(`li[data-section-id="${id}"]`);
-              if (li) menu.appendChild(li);
-            });
-        
-            // 6) infine, riordina anche le sezioni sul contenuto
-            const container = document.getElementById('tools-sections') || document.body;
-            ids.forEach(id => {
-              const sec = document.getElementById(id);
-              if (sec) container.appendChild(sec);
-            });
-          }
-        });
-  
-        // 6) Abilita drag interno AI TOOL, saltando Preferiti
-        abilitaDragSezioniConSalvataggio();
-        abilitaResetOrdine();
-        abilitaCollapseLoadMore();
-      });
-  });
-  
-  function abilitaCollapseLoadMore() {
-  document.querySelectorAll('.portfolio-section').forEach(section => {
-    const row = section.querySelector('.row');
-    const items = Array.from(row.children);
-    if (items.length <= 6) return;
-
-    items.slice(6).forEach(el => el.style.display = 'none');
-
-    const btn = document.createElement('button');
-    btn.className = 'load-more-btn btn-oval';
-    btn.innerHTML = `
-      <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
-      <span class="arrow"><i class="fas fa-chevron-down"></i></span>
-    `;
-    let expanded = false;
-
-    btn.addEventListener('click', () => {
-      expanded = !expanded;
-      items.slice(6).forEach(el => el.style.display = expanded ? '' : 'none');
-      btn.querySelector('.arrow').innerHTML = `<i class="fas fa-chevron-${expanded ? 'up' : 'down'}"></i>`;
-      btn.style.animation = expanded ? 'none' : '';
-    });
-
-    const wrapper = document.createElement('div');
-    wrapper.className = 'text-center mt-3';
-    wrapper.appendChild(btn);
-    row.parentNode.insertBefore(wrapper, row.nextSibling);
-  });
-}
-  
+});
