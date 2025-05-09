@@ -1,0 +1,490 @@
+[
+  {
+    "nome": "ChatGPT",
+    "url": "https://chat.openai.com",
+    "descrizione": "Chatbot AI per scrittura e conversazione",
+    "immagine": "./assets/images/tools/chatgpt.png",
+    "url_prompt": "https://chat.openai.com/?q=Il+tuo+prompt",
+    "categorie": [
+      "Chat e Testo", "Immagini"
+    ]
+  },
+  {
+    "nome": "Claude",
+    "url": "https://claude.ai",
+    "descrizione": "Conversazioni avanzate con Claude AI",
+    "immagine": "./assets/images/tools/claude.png",
+    "url_prompt": "https://claude.ai/new?q=Il+tuo+prompt",
+    "categorie": [
+      "Chat e Testo"
+    ]
+  },
+  {
+    "nome": "Gemini",
+    "url": "https://gemini.google.com",
+    "descrizione": "Chat AI ufficiale di Google",
+    "immagine": "./assets/images/tools/gemini.png",
+    "categorie": [
+      "Chat e Testo"
+    ]
+  },
+  {
+    "nome": "Perplexity",
+    "url": "https://perplexity.ai",
+    "descrizione": "Motore di ricerca AI con fonti",
+    "immagine": "./assets/images/tools/perplexity.png",
+    "categorie": [
+      "Chat e Testo"
+    ]
+  },
+  {
+    "nome": "Writesonic",
+    "url": "https://writesonic.com",
+    "descrizione": "Scrittura AI per blog e marketing",
+    "immagine": "./assets/images/tools/writesonic.png",
+    "categorie": [
+      "Chat e Testo"
+    ]
+  },
+  {
+    "nome": "Copy.ai",
+    "url": "https://copy.ai",
+    "descrizione": "Copywriting e contenuti automatici",
+    "immagine": "./assets/images/tools/copyai.png",
+    "categorie": [
+      "Chat e Testo"
+    ]
+  },
+  {
+    "nome": "Jasper",
+    "url": "https://jasper.ai",
+    "descrizione": "Generazione contenuti AI per aziende",
+    "immagine": "./assets/images/tools/jasper.png",
+    "categorie": [
+      "Chat e Testo"
+    ]
+  },
+  {
+    "nome": "Notion AI",
+    "url": "https://notion.so",
+    "descrizione": "Assistente AI integrato in Notion",
+    "immagine": "./assets/images/tools/notion_ai.png",
+    "categorie": [
+      "Chat e Testo"
+    ]
+  },
+  {
+    "nome": "You.com",
+    "url": "https://you.com",
+    "descrizione": "Motore di ricerca conversazionale AI",
+    "immagine": "./assets/images/tools/youcom.png",
+    "categorie": [
+      "Chat e Testo"
+    ]
+  },
+  {
+    "nome": "Midjourney",
+    "url": "https://midjourney.com",
+    "descrizione": "Generatore immagini AI su Discord",
+    "immagine": "./assets/images/tools/midjourney.png",
+    "categorie": [
+      "Immagini"
+    ]
+  },
+  {
+    "nome": "Leonardo AI",
+    "url": "https://leonardo.ai",
+    "descrizione": "Creazione immagini artistiche AI",
+    "immagine": "./assets/images/tools/leonardo_ai.png",
+    "categorie": [
+      "Immagini"
+    ]
+  },
+  {
+    "nome": "Bing Image Creator",
+    "url": "https://bing.com",
+    "descrizione": "Immagini AI via DALL·E di Microsoft",
+    "immagine": "./assets/images/tools/bing_image_creator.png",
+    "categorie": [
+      "Immagini"
+    ]
+  },
+  {
+    "nome": "Playground AI",
+    "url": "https://playgroundai.com",
+    "descrizione": "Editor e generatore immagini AI",
+    "immagine": "./assets/images/tools/playground_ai.png",
+    "categorie": [
+      "Immagini"
+    ]
+  },
+  {
+    "nome": "Craiyon",
+    "url": "https://craiyon.com",
+    "descrizione": "AI art gratuita e open",
+    "immagine": "./assets/images/tools/craiyon.png",
+    "categorie": [
+      "Immagini"
+    ]
+  },
+  {
+    "nome": "DreamStudio",
+    "url": "https://dreamstudio.ai",
+    "descrizione": "Stable Diffusion ufficiale",
+    "immagine": "./assets/images/tools/dreamstudio.png",
+    "categorie": [
+      "Immagini"
+    ]
+  },
+  {
+    "nome": "DeepAI",
+    "url": "https://deepai.org",
+    "descrizione": "Text-to-image open source",
+    "immagine": "./assets/images/tools/deepai.png",
+    "categorie": [
+      "Immagini"
+    ]
+  },
+  {
+    "nome": "NightCafe",
+    "url": "https://nightcafe.studio",
+    "descrizione": "Arte AI personalizzata",
+    "immagine": "./assets/images/tools/nightcafe.png",
+    "categorie": [
+      "Immagini"
+    ]
+  },
+  {
+    "nome": "Artbreeder",
+    "url": "https://artbreeder.com",
+    "descrizione": "Combinazione immagini AI",
+    "immagine": "./assets/images/tools/artbreeder.png",
+    "categorie": [
+      "Immagini"
+    ]
+  },
+  {
+    "nome": "ElevenLabs",
+    "url": "https://elevenlabs.io",
+    "descrizione": "Sintesi vocale realistica AI",
+    "immagine": "./assets/images/tools/elevenlabs.png",
+    "categorie": [
+      "Audio e Musica"
+    ]
+  },
+  {
+    "nome": "Voicemod",
+    "url": "https://voicemod.net",
+    "descrizione": "Cambiavoce live con AI",
+    "immagine": "./assets/images/tools/voicemod.png",
+    "categorie": [
+      "Audio e Musica"
+    ]
+  },
+  {
+    "nome": "Aiva",
+    "url": "https://aiva.ai",
+    "descrizione": "Compositore musicale AI",
+    "immagine": "./assets/images/tools/aiva.png",
+    "categorie": [
+      "Audio e Musica"
+    ]
+  },
+  {
+    "nome": "Boomy",
+    "url": "https://boomy.com",
+    "descrizione": "Crea musica e pubblica",
+    "immagine": "./assets/images/tools/boomy.png",
+    "categorie": [
+      "Audio e Musica"
+    ]
+  },
+  {
+    "nome": "Soundraw",
+    "url": "https://soundraw.io",
+    "descrizione": "Musica royalty-free AI",
+    "immagine": "./assets/images/tools/soundraw.png",
+    "categorie": [
+      "Audio e Musica"
+    ]
+  },
+  {
+    "nome": "Riffusion",
+    "url": "https://riffusion.com",
+    "descrizione": "Musica da testo con spettrogramma",
+    "immagine": "./assets/images/tools/riffusion.png",
+    "categorie": [
+      "Audio e Musica"
+    ]
+  },
+  {
+    "nome": "Mubert",
+    "url": "https://mubert.com",
+    "descrizione": "Musica generativa continua",
+    "immagine": "./assets/images/tools/mubert.png",
+    "categorie": [
+      "Audio e Musica"
+    ]
+  },
+  {
+    "nome": "Resemble AI",
+    "url": "https://resemble.ai",
+    "descrizione": "Voci sintetiche personalizzate",
+    "immagine": "./assets/images/tools/resemble_ai.png",
+    "categorie": [
+      "Audio e Musica"
+    ]
+  },
+  {
+    "nome": "Voicify AI",
+    "url": "https://voicify.ai",
+    "descrizione": "Crea canzoni con voci simulate",
+    "immagine": "./assets/images/tools/voicify_ai.png",
+    "categorie": [
+      "Audio e Musica"
+    ]
+  },
+  {
+    "nome": "Runway ML",
+    "url": "https://runwayml.com",
+    "descrizione": "Video generativi e strumenti creativi AI",
+    "immagine": "./assets/images/tools/runway_ml.png",
+    "categorie": [
+      "Video"
+    ]
+  },
+  {
+    "nome": "Pika Labs",
+    "url": "https://pika.art",
+    "descrizione": "Generazione video da prompt",
+    "immagine": "./assets/images/tools/pika_labs.png",
+    "categorie": [
+      "Video"
+    ]
+  },
+  {
+    "nome": "Synthesia",
+    "url": "https://synthesia.io",
+    "descrizione": "Avatar parlanti da testo",
+    "immagine": "./assets/images/tools/synthesia.png",
+    "categorie": [
+      "Video"
+    ]
+  },
+  {
+    "nome": "Kaiber",
+    "url": "https://kaiber.ai",
+    "descrizione": "Trasformazione immagini in video",
+    "immagine": "./assets/images/tools/kaiber.png",
+    "categorie": [
+      "Video"
+    ]
+  },
+  {
+    "nome": "Lumen5",
+    "url": "https://lumen5.com",
+    "descrizione": "Video automatici da articoli",
+    "immagine": "./assets/images/tools/lumen5.png",
+    "categorie": [
+      "Video"
+    ]
+  },
+  {
+    "nome": "DeepBrain",
+    "url": "https://deepbrain.io",
+    "descrizione": "Avatar AI per video realistici",
+    "immagine": "./assets/images/tools/deepbrain.png",
+    "categorie": [
+      "Video"
+    ]
+  },
+  {
+    "nome": "HeyGen",
+    "url": "https://heygen.com",
+    "descrizione": "Video AI in più lingue",
+    "immagine": "./assets/images/tools/heygen.png",
+    "categorie": [
+      "Video"
+    ]
+  },
+  {
+    "nome": "Colossyan",
+    "url": "https://colossyan.com",
+    "descrizione": "Video professionali per e-learning",
+    "immagine": "./assets/images/tools/colossyan.png",
+    "categorie": [
+      "Video"
+    ]
+  },
+  {
+    "nome": "Animoto",
+    "url": "https://animoto.com",
+    "descrizione": "Video semplificati con AI",
+    "immagine": "./assets/images/tools/animoto.png",
+    "categorie": [
+      "Video"
+    ]
+  },
+  {
+    "nome": "GitHub Copilot",
+    "url": "https://github.com",
+    "descrizione": "Autocompletamento intelligente per sviluppatori",
+    "immagine": "./assets/images/tools/github_copilot.png",
+    "categorie": [
+      "Codice e Sviluppo"
+    ]
+  },
+  {
+    "nome": "Replit Ghostwriter",
+    "url": "https://replit.com",
+    "descrizione": "Assistente AI in IDE Replit",
+    "immagine": "./assets/images/tools/replit_ghostwriter.png",
+    "categorie": [
+      "Codice e Sviluppo"
+    ]
+  },
+  {
+    "nome": "Codeium",
+    "url": "https://codeium.com",
+    "descrizione": "Suggerimenti di codice gratuiti AI",
+    "immagine": "./assets/images/tools/codeium.png",
+    "categorie": [
+      "Codice e Sviluppo"
+    ]
+  },
+  {
+    "nome": "Tabnine",
+    "url": "https://tabnine.com",
+    "descrizione": "AI per team di sviluppo",
+    "immagine": "./assets/images/tools/tabnine.png",
+    "categorie": [
+      "Codice e Sviluppo"
+    ]
+  },
+  {
+    "nome": "Amazon CodeWhisperer",
+    "url": "https://aws.amazon.com",
+    "descrizione": "Codice AI integrato in AWS",
+    "immagine": "./assets/images/tools/amazon_codewhisperer.png",
+    "categorie": [
+      "Codice e Sviluppo"
+    ]
+  },
+  {
+    "nome": "Mutable AI",
+    "url": "https://mutable.ai",
+    "descrizione": "Refactoring e completamento codice",
+    "immagine": "./assets/images/tools/mutable_ai.png",
+    "categorie": [
+      "Codice e Sviluppo"
+    ]
+  },
+  {
+    "nome": "Sourcegraph Cody",
+    "url": "https://sourcegraph.com",
+    "descrizione": "AI per comprendere grandi codebase",
+    "immagine": "./assets/images/tools/sourcegraph_cody.png",
+    "categorie": [
+      "Codice e Sviluppo"
+    ]
+  },
+  {
+    "nome": "AskCodi",
+    "url": "https://askcodi.com",
+    "descrizione": "Domande e snippet di codice AI",
+    "immagine": "./assets/images/tools/askcodi.png",
+    "categorie": [
+      "Codice e Sviluppo"
+    ]
+  },
+  {
+    "nome": "Builder.io (Fig AI)",
+    "url": "https://builder.io",
+    "descrizione": "Frontend AI per React e HTML",
+    "immagine": "./assets/images/tools/builderio_(fig_ai).png",
+    "categorie": [
+      "Codice e Sviluppo"
+    ]
+  },
+  {
+    "nome": "Canva AI",
+    "url": "https://canva.com",
+    "descrizione": "Grafica intelligente per contenuti",
+    "immagine": "./assets/images/tools/canva_ai.png",
+    "categorie": [
+      "Altri Strumenti"
+    ]
+  },
+  {
+    "nome": "Tome",
+    "url": "https://tome.app",
+    "descrizione": "Presentazioni generate da AI",
+    "immagine": "./assets/images/tools/tome.png",
+    "categorie": [
+      "Altri Strumenti"
+    ]
+  },
+  {
+    "nome": "Magician (per Figma)",
+    "url": "https://magician.design",
+    "descrizione": "Plugin AI per UI/UX designer",
+    "immagine": "./assets/images/tools/magician_(per_figma).png",
+    "categorie": [
+      "Altri Strumenti"
+    ]
+  },
+  {
+    "nome": "Gamma",
+    "url": "https://gamma.app",
+    "descrizione": "Documenti visuali da prompt",
+    "immagine": "./assets/images/tools/gamma.png",
+    "categorie": [
+      "Altri Strumenti"
+    ]
+  },
+  {
+    "nome": "Taskade AI",
+    "url": "https://taskade.com",
+    "descrizione": "Produttività con assistente AI",
+    "immagine": "./assets/images/tools/taskade_ai.png",
+    "categorie": [
+      "Altri Strumenti"
+    ]
+  },
+  {
+    "nome": "CopyMonkey",
+    "url": "https://copymonkey.ai",
+    "descrizione": "Ottimizzazione di listing Amazon",
+    "immagine": "./assets/images/tools/copymonkey.png",
+    "categorie": [
+      "Altri Strumenti"
+    ]
+  },
+  {
+    "nome": "Flowrite",
+    "url": "https://flowrite.com",
+    "descrizione": "Scrittura email AI in tempo reale",
+    "immagine": "./assets/images/tools/flowrite.png",
+    "categorie": [
+      "Altri Strumenti"
+    ]
+  },
+  {
+    "nome": "Adept AI",
+    "url": "https://adept.ai",
+    "descrizione": "AI per automazione comandi su interfacce",
+    "immagine": "./assets/images/tools/adept_ai.png",
+    "categorie": [
+      "Altri Strumenti"
+    ]
+  },
+  {
+    "nome": "Beautiful.ai",
+    "url": "https://beautiful.ai",
+    "descrizione": "Presentazioni auto-generate",
+    "immagine": "./assets/images/tools/beautifulai.png",
+    "categorie": [
+      "Altri Strumenti"
+    ]
+  }
+]
