@@ -691,3 +691,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+// Funzione per mostrare/nascondere descrizioni
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleBtn = document.getElementById('toggle-descrizioni-btn');
+  if (!toggleBtn) return;
+
+  let descrizioniVisibili = true;
+
+  toggleBtn.addEventListener('click', () => {
+    descrizioniVisibili = !descrizioniVisibili;
+
+    document.querySelectorAll('.portfolio-caption-subheading').forEach(el => {
+      el.style.display = descrizioniVisibili ? '' : 'none';
+    });
+
+    toggleBtn.textContent = descrizioniVisibili ? 'Nascondi descrizioni' : 'Mostra descrizioni';
+  });
+});
