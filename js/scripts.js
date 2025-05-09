@@ -709,3 +709,6 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleBtn.textContent = descrizioniVisibili ? 'Nascondi descrizioni' : 'Mostra descrizioni';
   });
 });
+
+
+

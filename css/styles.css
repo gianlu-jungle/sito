@@ -2097,7 +2097,7 @@ progress {
   min-height: calc(1.5em + 0.5rem + 2px);
   padding: 0.5rem 0.5rem;
   font-size: 1.2rem;
-  border-radius: 0.5rem;
+  border-radius: 1.0rem;
 }
 .form-control-sm::file-selector-button {
   padding: 0.5rem 0.5rem;
@@ -11042,7 +11042,7 @@ header.masthead .masthead-heading {
   opacity: 1;
 }
 .portfolio-section .portfolio-item .portfolio-caption {
-  padding: 0.2rem;
+  padding: 0.0rem;
 
   text-align: center;
   background-color: #fff;
