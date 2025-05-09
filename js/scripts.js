@@ -416,44 +416,36 @@ function setupResetOrderButtons() {
 function setupExpandCollapseSections() {
   document.querySelectorAll('.portfolio-section').forEach(section => {
     const row = section.querySelector('.row');
-    const items = Array.from(row.children);
-    
-    
-     // NON aggiungere sezione se già c'è il pulsante
-     if (section.querySelector('.load-more-btn') || items.length <= 6) return;
+    let items = () => Array.from(row.children);
 
+    // NON aggiungere sezione se già c'è il pulsante
+    if (section.querySelector('.load-more-btn') || items().length <= 6) return;
 
-    // Applica solo se ci sono più di 6 elementi
-    if (items.length <= 6) return;
-    
     // Nascondi gli elementi oltre il 6°
-    items.slice(6).forEach(el => el.style.display = 'none');
-    
-    // Crea il pulsante "Mostra altro"
+    items().slice(6).forEach(el => el.style.display = 'none');
+
     const btn = document.createElement('button');
     btn.className = 'load-more-btn btn-oval';
     btn.innerHTML = `
       <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
       <span class="arrow"><i class="fas fa-chevron-down"></i></span>
     `;
-    
+
     let expanded = false;
-    
-    // Evento click sul pulsante
+
     btn.addEventListener('click', () => {
       expanded = !expanded;
-      items.slice(6).forEach(el => el.style.display = expanded ? '' : 'none');
+      items().slice(6).forEach(el => el.style.display = expanded ? '' : 'none');
       btn.querySelector('.arrow').innerHTML = `<i class="fas fa-chevron-${expanded ? 'up' : 'down'}"></i>`;
-      btn.style.animation = expanded ? 'none' : '';
     });
-    
-    // Aggiungi il pulsante alla fine della sezione
+
     const wrapper = document.createElement('div');
     wrapper.className = 'text-center mt-3';
     wrapper.appendChild(btn);
     row.parentNode.insertBefore(wrapper, row.nextSibling);
   });
 }
+
 
 // Configura la navigazione
 function setupNavigation(categories) {
@@ -526,92 +518,92 @@ function setupNavigation(categories) {
   });
 }
 
-// Configura la ricerca
 function setupSearch() {
   const searchInput = document.getElementById('searchInput');
   if (!searchInput) return;
-  
+
   const container = document.getElementById('tools-sections') || document.body;
   let filteredSection = null;
-  
+
   searchInput.addEventListener('input', () => {
     const query = searchInput.value.toLowerCase().trim();
-    
-    // Rimuovi sezione risultati precedente
+
+    // Rimuove sezione precedente
     if (filteredSection) {
       filteredSection.remove();
       filteredSection = null;
     }
-    
+
     if (!query) return;
-    
-    // Trova tutti i portfolio-item che corrispondono alla ricerca
-    const allMatches = Array.from(document.querySelectorAll('.portfolio-item')).filter(item => {
+
+    // Trova tutti i .portfolio-item (anche nascosti)
+    const allItems = Array.from(document.querySelectorAll('.portfolio-item'));
+
+    const matches = allItems.filter(item => {
       const name = item.querySelector('.portfolio-caption-heading')?.textContent.toLowerCase() || '';
       const desc = item.querySelector('.portfolio-caption-subheading')?.textContent.toLowerCase() || '';
       return name.includes(query) || desc.includes(query);
     });
-    
-    // Deduplicazione per data-id
+
+    // Deduplica per data-id
     const seen = new Set();
-    const matches = allMatches.filter(item => {
+    const uniqueMatches = matches.filter(item => {
       const id = item.querySelector('.star-btn')?.dataset.id;
       if (!id || seen.has(id)) return false;
       seen.add(id);
       return true;
     });
-    
-    if (!matches.length) return;
-    
-    // Crea sezione risultati ricerca
+
+    if (!uniqueMatches.length) return;
+
+    // Crea sezione risultati
     filteredSection = document.createElement('section');
     filteredSection.classList.add('page-section', 'portfolio-section');
     filteredSection.id = 'filtered-section';
-    
+
     filteredSection.innerHTML = `
       <div class="container">
         <div class="text-center">
           <h2 class="section-heading text-uppercase">Risultati ricerca</h2>
-          <h3 class="section-subheading text-muted">Trovati ${matches.length} elementi</h3>
+          <h3 class="section-subheading text-muted">Trovati ${uniqueMatches.length} elementi</h3>
         </div>
         <div class="row g-3"></div>
       </div>
     `;
-    
+
     const row = filteredSection.querySelector('.row');
-    
-    // Clona i risultati e aggiungi event listener
-    matches.forEach(item => {
-      const originalCol = item.closest('.col-4, .col-sm-4, .col-lg-4');
+
+    uniqueMatches.forEach(item => {
+      const originalCol = item.closest('[class*="col-"]');
       if (!originalCol) return;
-      
+
       const clone = originalCol.cloneNode(true);
+      clone.style.display = ''; // 🔧 Mostra il clone anche se l'originale era nascosto
+
       const star = clone.querySelector('.star-btn');
-      
       if (star) {
         const id = star.dataset.id;
-        // Aggiorna stato stella
         if (favoritesManager.get().includes(id)) {
           star.classList.add('active');
         } else {
           star.classList.remove('active');
         }
-        
-        // Aggiungi event listener
+
+        // Toggle preferito
         star.addEventListener('click', e => {
           e.preventDefault();
           const name = clone.querySelector('.portfolio-caption-heading')?.textContent;
           if (name) favoritesManager.toggle(name);
         });
       }
-      
+
       row.appendChild(clone);
     });
-    
-    // Inserisci sezione risultati in cima
+
     container.parentNode.insertBefore(filteredSection, container);
   });
 }
+
 
 // Configura navbar responsive
 document.addEventListener('DOMContentLoaded', () => {
@@ -712,3 +704,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('searchInput');
+  const navbar = document.querySelector('#mainNav'); // o il tuo selettore nav
+  let hasScrolled = false;
+
+  input.addEventListener('input', () => {
+    const query = input.value.trim();
+
+    if (query && !hasScrolled) {
+      // Calcola offset: altezza navbar + 0.25rem (≈ 4px)
+      const navHeight = navbar ? navbar.offsetHeight : 0;
+      const offset = navHeight + 16;
+
+      // Calcola distanza da top
+      const rect = input.getBoundingClientRect();
+      const scrollTop = window.scrollY + rect.top - offset;
+
+      // Scroll fluido
+      window.scrollTo({
+        top: scrollTop,
+        behavior: 'smooth'
+      });
+
+      hasScrolled = true;
+    }
+
+    if (!query) {
+      hasScrolled = false;
+    }
+  });
+});
